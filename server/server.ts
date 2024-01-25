@@ -22,7 +22,7 @@ class TimeLogger {
 		this.times.push(new Date().getTime())
 	}
 	comment(text: string) {
-		console.log(Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100, "secs", "\t", text, " \tdelTime:", Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100, "secs")
+		console.log(Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100, "\t", Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100, "\t", text)
 
 	}
 }
@@ -160,10 +160,6 @@ class GoogleLensOCR {
 			.then(res => {
 				return new File([new Blob([res])], 'ocrImage.jpg', { type: 'image/jpeg' });
 			})
-		// .then(() => {
-		// console.log("done!")
-		// })
-
 	}
 }
 
@@ -175,5 +171,5 @@ const googleLensOCR = new GoogleLensOCR()
 // })
 
 
-googleLensOCR.call(path.join(__dirname, "assets", "w8.png"))
+googleLensOCR.call(path.join(__dirname, "assets", "e3.png"))
 // fs.readFileSync(path.join(__dirname, "assets", "edit.jpg"))
