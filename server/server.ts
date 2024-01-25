@@ -1,12 +1,7 @@
 import { promises as fsp } from "fs"
 import path from "path"
 import { File, Blob } from "@web-std/file"
-import Jimp from "jimp";
 import sharp from "sharp";
-const dJSON = require('dirty-json');
-
-const sizeOf = require("image-size")
-
 
 class TimeLogger {
 	times: number[]
@@ -31,7 +26,7 @@ const timeLogger = new TimeLogger()
 class GoogleLensOCR {
 	/* 
 		This calls the Google Lens OCR api.
-		RESTURNS:
+		RETURNS:
 			STRING - a string containing the text of the characters in the image
 	*/
 	constructor() { }
@@ -163,13 +158,6 @@ class GoogleLensOCR {
 	}
 }
 
-// var time = new Date().getTime()
 
 const googleLensOCR = new GoogleLensOCR()
-// googleLensOCR.preprocess(path.join("assets", "saynotodrugs.png")).then(() => {
-// 	console.log(Math.round(((new Date().getTime()) - time) / 10) / 100, "seconds")
-// })
-
-
 googleLensOCR.call(path.join(__dirname, "assets", "e3.png"))
-// fs.readFileSync(path.join(__dirname, "assets", "edit.jpg"))
