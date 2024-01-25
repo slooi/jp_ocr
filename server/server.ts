@@ -15,10 +15,15 @@ class TimeLogger {
 	}
 	start() {
 		this.times.push(new Date().getTime())
+		this.comment("!!!   TIMER START   !!!\t")
 	}
-	lapAndLog() {
-		console.log("Full-time:", Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100, "seconds", " Delta-time:", Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100, "seconds")
+	lap(text: string) {
+		this.comment(text)
 		this.times.push(new Date().getTime())
+	}
+	comment(text: string) {
+		console.log(Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100, "secs", "\t", text, " \tdelTime:", Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100, "secs")
+
 	}
 }
 const timeLogger = new TimeLogger()
@@ -31,27 +36,22 @@ class GoogleLensOCR {
 	*/
 	constructor() { }
 	async call(imagePath: string) {
-		console.log("!!!   TIMER START   !!!")
 		timeLogger.start()
 
-
+		timeLogger.lap("---   PRE-PROCESSING IMAGE\t")
 		const file = await this.preprocess(imagePath)
-		timeLogger.lapAndLog()
 		var formData = new FormData();
 		formData.append('encoded_image', file);
 
-		console.log("---   FETCHING TEXT   ---")
+		timeLogger.lap("---   FETCHING\t\t\t")
 		fetch(`https://lens.google.com/v3/upload?&stcs=${new Date().getTime()}`, {
 			method: 'POST',
 			body: formData
 		}).then(res => {
-			timeLogger.lapAndLog()
-			console.log("---   PROCESSING RESPONSE   ---")
+			timeLogger.lap("---   PROCESSING RESPONSE\t")
 			return res.text()
 		}).then(async text => {
-
-
-			timeLogger.lapAndLog()
+			timeLogger.lap("---   PARSING TEXT\t\t")
 			const pattern = />AF_initDataCallback\({key: 'ds:1',.*?\)\;<\/script>/
 			const matchResult = text.match(pattern)
 			if (matchResult) {
@@ -59,12 +59,8 @@ class GoogleLensOCR {
 				const codeBlockText = matchResult[0]
 				const frontFiltered = codeBlockText.substring(21 + 30)
 				const frontBackFiltered = frontFiltered.substring(0, frontFiltered.length - (11 + 18))
-				await fsp.writeFile("asdfghjk.json", frontBackFiltered, { encoding: "utf-8" })
-				timeLogger.lapAndLog()
-				console.log("  # 1")
+				// await fsp.writeFile("asdfghjk.json", frontBackFiltered, { encoding: "utf-8" })  // !@#!@##!@#
 				const lensResponseJSON = JSON.parse(frontBackFiltered)
-				timeLogger.lapAndLog()
-				console.log("  # 2")
 
 
 				// If `errorHasStatus` field is `true`, then throw error
@@ -73,7 +69,7 @@ class GoogleLensOCR {
 				if (lensResponseJSON[3][4][0].length === 0) throw new Error("No text")
 
 				const textLines = lensResponseJSON[3][4][0][0]
-				timeLogger.lapAndLog()
+				timeLogger.lap("---   FINISHED\t\t\t")
 				console.log(textLines.join(" "))
 
 			} else {
@@ -118,7 +114,6 @@ class GoogleLensOCR {
 			}
 			return [newWidth, newHeight]
 		}
-		console.log("---   PRE-PROCESSING IMAGE   ---")
 		const file = await fsp.readFile(imagePath)
 
 		//####################
