@@ -8,6 +8,20 @@ const dJSON = require('dirty-json');
 const sizeOf = require("image-size")
 
 
+class TimeLogger {
+	times: number[]
+	constructor() {
+		this.times = []
+	}
+	start() {
+		this.times.push(new Date().getTime())
+	}
+	lapAndLog() {
+		console.log("Full-time:", Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100, "seconds", " Delta-time:", Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100, "seconds")
+		this.times.push(new Date().getTime())
+	}
+}
+const timeLogger = new TimeLogger()
 
 class GoogleLensOCR {
 	/* 
@@ -17,6 +31,9 @@ class GoogleLensOCR {
 	*/
 	constructor() { }
 	async call(imagePath: string) {
+		console.log("---   TIMER START   ---")
+		timeLogger.start()
+
 
 		const imageBlob = new Blob([await this.preprocess(imagePath)])
 		var file = new File([imageBlob], 'ocrImage.jpg', { type: 'image/jpeg' });
@@ -24,13 +41,12 @@ class GoogleLensOCR {
 		var formData = new FormData();
 		formData.append('encoded_image', file);
 
-		var time = new Date().getTime()
-		console.log("---   FETCHING   ---")
+		console.log("---   FETCHING TEXT   ---")
 		fetch(`https://lens.google.com/v3/upload?&stcs=${new Date().getTime()}`, {
 			method: 'POST',
 			body: formData
 		}).then(res => {
-			console.log("---   GOT RESPONSE!   ---")
+			console.log("---   PROCESSING RESPONSE   ---")
 			return res.text()
 		}).then(text => {
 
@@ -51,6 +67,7 @@ class GoogleLensOCR {
 				if (lensResponseJSON.data[3][4][0].length === 0) throw new Error("No text")
 
 				const textLines = lensResponseJSON.data[3][4][0][0]
+				timeLogger.lapAndLog()
 				console.log(textLines.join(" "))
 
 			} else {
@@ -58,7 +75,6 @@ class GoogleLensOCR {
 				throw new Error("ERROR no match. ")
 			}
 
-			console.log(Math.round(((new Date().getTime()) - time) / 10) / 100, "seconds")
 		}).catch(err => { throw new Error(err) })
 
 	}
@@ -78,6 +94,12 @@ class GoogleLensOCR {
 		const oldHeight = metaData.height
 
 		if (oldWidth === undefined || oldHeight === undefined) throw new Error("image width and height are undefined!")
+
+
+		if (oldWidth * oldHeight < MAX_PIXELS) {
+			console.log("  ***   SKIPPING PRE-PROCESSING   ***  ")
+			return image.toBuffer()
+		}
 
 		//####################
 		// Calculate new width and new height to ensure:   # of pixels in img is < MAX_PIXELS
@@ -99,8 +121,7 @@ class GoogleLensOCR {
 			})
 			.toBuffer()
 			.then(res => {
-
-				console.log("---   PRE-PROCESSING IMAGE   DONE   ---")
+				timeLogger.lapAndLog()
 				return res
 			})
 		// .then(() => {
@@ -118,5 +139,5 @@ const googleLensOCR = new GoogleLensOCR()
 // })
 
 
-googleLensOCR.call(path.join(__dirname, "assets", "edit.jpg"))
+googleLensOCR.call(path.join(__dirname, "assets", "a3.jpg"))
 // fs.readFileSync(path.join(__dirname, "assets", "edit.jpg"))
