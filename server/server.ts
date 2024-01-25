@@ -36,50 +36,58 @@ class GoogleLensOCR {
 	*/
 	constructor() { }
 	async call(imagePath: string) {
-		console.log(`imagePath: ${imagePath}`)
-		timeLogger.start()
+		try {
+			console.log(`imagePath: ${imagePath}`)
+			timeLogger.start()
 
-		timeLogger.lap("PRE-PROCESSING IMAGE\t")
-		const file = await this.preprocess(imagePath)
-		var formData = new FormData();
-		formData.append('encoded_image', file);
+			// PRE-PROCESS
+			timeLogger.lap("PRE-PROCESSING IMAGE\t")
+			const file = await this.preprocess(imagePath)
 
-		timeLogger.lap("FETCHING\t\t")
-		fetch(`https://lens.google.com/v3/upload?&stcs=${new Date().getTime()}`, {
-			method: 'POST',
-			body: formData
-		}).then(res => {
+			// ADD FILE TO FORM DATA
+			var formData = new FormData();
+			formData.append('encoded_image', file);
+
+			// FETCH
+			timeLogger.lap("FETCHING\t\t")
+			const res = await fetch(`https://lens.google.com/v3/upload?&stcs=${new Date().getTime()}`, {
+				method: 'POST',
+				body: formData
+			})
+
+			// PROCESS RESPONSE
 			timeLogger.lap("PROCESSING RESPONSE\t")
-			return res.text()
-		}).then(async text => {
-			// await fsp.writeFile(path.join("experiments", "w7.html"), text, { encoding: "utf-8" })  // !@#!@##!@#
+			const text = await res.text()
 			timeLogger.lap("PARSING TEXT\t\t")
 			const pattern = />AF_initDataCallback\({key: 'ds:1',.*?\)\;<\/script>/
 			const matchResult = text.match(pattern)
-			if (matchResult) {
-				// Get JSON from response
-				const codeBlockText = matchResult[0]
-				const frontFiltered = codeBlockText.substring(21 + 30)
-				const frontBackFiltered = frontFiltered.substring(0, frontFiltered.length - (11 + 18))
-				const lensResponseJSON = JSON.parse(frontBackFiltered)
+
+			// CHECK
+			if (!matchResult) throw new Error("ERROR no match. You most likely have an post request with invalid data (eg: File with text/jpg instead of text/jpeg). ")
 
 
-				// If `errorHasStatus` field is `true`, then throw error
-				if (lensResponseJSON["errorHasStatus"]) throw new Error("errorHasStatus is true.Your image is probably too large, and must be shrunk to less than 1,000,000 pixels")
-				// If no text if found, length will be === 0
-				if (lensResponseJSON[3][4][0].length === 0) throw new Error("No text")
+			// Get JSON from response
+			const codeBlockText = matchResult[0]
+			const frontFiltered = codeBlockText.substring(21 + 30)
+			const frontBackFiltered = frontFiltered.substring(0, frontFiltered.length - (11 + 18))
+			const lensResponseJSON = JSON.parse(frontBackFiltered)
 
-				const textLines = lensResponseJSON[3][4][0][0]
-				timeLogger.lap("FINISHED\t\t")
-				console.log(textLines.join(" "))
 
-			} else {
-				console.log(pattern)
-				throw new Error("ERROR no match. You most likely have an post request with invalid data (eg: File with text/jpg instead of text/jpeg). ")
-			}
+			// If `errorHasStatus` field is `true`, then throw error
+			if (lensResponseJSON["errorHasStatus"]) throw new Error("errorHasStatus is true. Your image is probably too large, and must be shrunk to less than 1,000,000 pixels")
+			// If no text if found, length will be === 0
+			if (lensResponseJSON[3][4][0].length === 0) throw new Error("No text")
 
-		}).catch(err => { throw new Error(err) })
+			// Get content
+			const textLines = lensResponseJSON[3][4][0][0]
+			const ocrText = textLines.join(" ")
+			timeLogger.lap("FINISHED\t\t")
+			console.log(ocrText)
 
+			return ocrText
+		} catch (err) {
+			throw new Error(`${err}`)
+		}
 	}
 	async preprocess(imagePath: string, MAX_PIXELS = 3000000) {
 		function findMaxPossibleDimensions(oldWidth, oldHeight, maxPixels) {
