@@ -1,4 +1,4 @@
-import fs from "fs"
+import { promises as fsp } from "fs"
 import path from "path"
 import { File, Blob } from "@web-std/file"
 import Jimp from "jimp";
@@ -7,53 +7,51 @@ const dJSON = require('dirty-json');
 
 const sizeOf = require("image-size")
 
+async function preprocessImage(imagePath: string, MAX_PIXELS = 3000000) {
+	const file = await fsp.readFile(imagePath)
 
-// async function preprocessImage(imagePath: string) {
-// 	return Jimp.read(imagePath)
-// 		.then((image) => {
-// 			// Get old width
-// 			const oldWidth = image.getWidth()
-// 			const oldHeight = image.getHeight()
+	//####################
+	// Get image size
+	//####################
+	// Get image and image meta data
+	const image = await sharp(file)
+	const metaData = await image.metadata()
 
-// 			// Calculate scale
-// 			const scale = ((oldWidth * oldHeight) / 3000000) ** 0.5
+	// Get old width
+	const oldWidth = metaData.width
+	const oldHeight = metaData.height
 
-// 			// Calculate new image dimensions
-// 			const newWidth = Math.floor(oldWidth / scale)
-// 			const newHeight = Math.floor(oldHeight / scale)
+	if (oldWidth === undefined || oldHeight === undefined) throw new Error("image width and height are undefined!")
 
-// 			// return
-// 			return image
-// 				.resize(newWidth, newHeight) // resize
-// 				.quality(95) // set JPEG quality
-// 				.getBuffer(Jimp.MIME_JPEG, (buffer) => {
+	//####################
+	// Calculate new width and new height to ensure:   # of pixels in img is < MAX_PIXELS
+	//####################
+	// Calculate scale
+	const scale = ((oldWidth * oldHeight) / MAX_PIXELS) ** 0.5
 
-// 				})
-// 			// .write(path.join("assets", "edit2.jpg")); // save
-// 		})
-// 		.catch((err) => {
-// 			throw new Error(err);
-// 		});
-// }
-// var time = new Date().getTime()
-// preprocessImage(path.join("assets", "saynotodrugs.png")).then(() => {
+	// Calculate new image dimensions
+	const newWidth = Math.floor(oldWidth / scale)
+	const newHeight = Math.floor(oldHeight / scale)
 
-// 	console.log(Math.round(((new Date().getTime()) - time) / 10) / 100, "seconds")
-// })
-console.log("running")
+	//####################
+	// Reize Image
+	//####################
+	return image
+		.resize(newWidth, newHeight)
+		.jpeg({
+			quality: 100,
+		})
+		.toBuffer()
+	// .then(() => {
+	// console.log("done!")
+	// })
+
+}
 var time = new Date().getTime()
-sharp(path.join("assets", "saynotodrugs.png"))
-	.resize(2131, 1407)
-	.jpeg({
-		quality: 95, // Adjust quality (lower quality can reduce processing time)
-	})
-	.toBuffer()
-	.then(() => {
 
-		console.log(Math.round(((new Date().getTime()) - time) / 10) / 100, "seconds")
-	})
-
-
+preprocessImage(path.join("assets", "saynotodrugs.png")).then(() => {
+	console.log(Math.round(((new Date().getTime()) - time) / 10) / 100, "seconds")
+})
 // const imageBlob = new Blob([fs.readFileSync(path.join(__dirname, "assets", "edit.jpg"))])
 // var file = new File([imageBlob], 'ocrImage.jpg', { type: 'image/jpeg' });
 
