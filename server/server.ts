@@ -35,9 +35,7 @@ class GoogleLensOCR {
 		timeLogger.start()
 
 
-		const imageBlob = new Blob([await this.preprocess(imagePath)])
-		var file = new File([imageBlob], 'ocrImage.jpg', { type: 'image/jpeg' });
-
+		const file = await this.preprocess(imagePath)
 		var formData = new FormData();
 		formData.append('encoded_image', file);
 
@@ -98,9 +96,8 @@ class GoogleLensOCR {
 
 		if (oldWidth * oldHeight < MAX_PIXELS) {
 			console.log("  ***   SKIPPING PRE-PROCESSING   ***  ")
-			return image.toBuffer()
+			return new File([new Blob([await image.toBuffer()])], 'ocrImage.png', { type: 'image/png' });
 		}
-
 		//####################
 		// Calculate new width and new height to ensure:   # of pixels in img is < MAX_PIXELS
 		//####################
@@ -122,7 +119,7 @@ class GoogleLensOCR {
 			.toBuffer()
 			.then(res => {
 				timeLogger.lapAndLog()
-				return res
+				return new File([new Blob([res])], 'ocrImage.jpg', { type: 'image/jpeg' });
 			})
 		// .then(() => {
 		// console.log("done!")
@@ -139,5 +136,5 @@ const googleLensOCR = new GoogleLensOCR()
 // })
 
 
-googleLensOCR.call(path.join(__dirname, "assets", "a3.jpg"))
+googleLensOCR.call(path.join(__dirname, "assets", "a1.png"))
 // fs.readFileSync(path.join(__dirname, "assets", "edit.jpg"))
