@@ -23,7 +23,7 @@ class TimeLogger {
 }
 const timeLogger = new TimeLogger()
 
-class GoogleLensOCR {
+export class GoogleLensOCR {
 	/* 
 		This calls the Google Lens OCR api.
 		RETURNS:
@@ -159,5 +159,5 @@ class GoogleLensOCR {
 }
 
 
-const googleLensOCR = new GoogleLensOCR()
-googleLensOCR.call(path.join(__dirname, "assets", "e3.png"))
+// const googleLensOCR = new GoogleLensOCR()
+// googleLensOCR.call(path.join(__dirname, "assets", "e3.png"))
