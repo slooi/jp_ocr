@@ -7,51 +7,68 @@ const dJSON = require('dirty-json');
 
 const sizeOf = require("image-size")
 
-async function preprocessImage(imagePath: string, MAX_PIXELS = 3000000) {
-	const file = await fsp.readFile(imagePath)
 
-	//####################
-	// Get image size
-	//####################
-	// Get image and image meta data
-	const image = await sharp(file)
-	const metaData = await image.metadata()
 
-	// Get old width
-	const oldWidth = metaData.width
-	const oldHeight = metaData.height
+class GoogleLensOCR {
+	/* 
+		This calls the Google Lens OCR api.
+		RESTURNS:
+			STRING - a string containing the text of the characters in the image
+	*/
+	constructor() { }
+	call(imagePath: string) {
 
-	if (oldWidth === undefined || oldHeight === undefined) throw new Error("image width and height are undefined!")
+	}
+	async preprocess(imagePath: string, MAX_PIXELS = 3000000) {
+		const file = await fsp.readFile(imagePath)
 
-	//####################
-	// Calculate new width and new height to ensure:   # of pixels in img is < MAX_PIXELS
-	//####################
-	// Calculate scale
-	const scale = ((oldWidth * oldHeight) / MAX_PIXELS) ** 0.5
+		//####################
+		// Get image size
+		//####################
+		// Get image and image meta data
+		const image = await sharp(file)
+		const metaData = await image.metadata()
 
-	// Calculate new image dimensions
-	const newWidth = Math.floor(oldWidth / scale)
-	const newHeight = Math.floor(oldHeight / scale)
+		// Get old width
+		const oldWidth = metaData.width
+		const oldHeight = metaData.height
 
-	//####################
-	// Reize Image
-	//####################
-	return image
-		.resize(newWidth, newHeight)
-		.jpeg({
-			quality: 100,
-		})
-		.toBuffer()
-	// .then(() => {
-	// console.log("done!")
-	// })
+		if (oldWidth === undefined || oldHeight === undefined) throw new Error("image width and height are undefined!")
 
+		//####################
+		// Calculate new width and new height to ensure:   # of pixels in img is < MAX_PIXELS
+		//####################
+		// Calculate scale
+		const scale = ((oldWidth * oldHeight) / MAX_PIXELS) ** 0.5
+
+		// Calculate new image dimensions
+		const newWidth = Math.floor(oldWidth / scale)
+		const newHeight = Math.floor(oldHeight / scale)
+
+		//####################
+		// Reize Image
+		//####################
+		return image
+			.resize(newWidth, newHeight)
+			.jpeg({
+				quality: 100,
+			})
+			.toBuffer()
+		// .then(() => {
+		// console.log("done!")
+		// })
+
+	}
 }
+
 var time = new Date().getTime()
 
-preprocessImage(path.join("assets", "saynotodrugs.png")).then(() => {
+const googleLensOCR = new GoogleLensOCR()
+googleLensOCR.preprocess(path.join("assets", "saynotodrugs.png")).then(() => {
 	console.log(Math.round(((new Date().getTime()) - time) / 10) / 100, "seconds")
 })
+
+
 // const imageBlob = new Blob([fs.readFileSync(path.join(__dirname, "assets", "edit.jpg"))])
 // var file = new File([imageBlob], 'ocrImage.jpg', { type: 'image/jpeg' });
 
