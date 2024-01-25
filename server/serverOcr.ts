@@ -14,7 +14,7 @@ const dJSON = require('dirty-json');
 // }
 
 // test
-var file = new File([new Blob([fs.readFileSync(path.join(__dirname, "a1.png"))])], 'a1a.jpg', { type: 'image/jpeg' });
+var file = new File([new Blob([fs.readFileSync(path.join(__dirname, "assets", "a1.jpg"))])], 'a1a.jpg', { type: 'image/jpeg' });
 
 var formData = new FormData();
 formData.append('encoded_image', file);
