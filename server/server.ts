@@ -166,5 +166,5 @@ const googleLensOCR = new GoogleLensOCR()
 // })
 
 
-googleLensOCR.call(path.join(__dirname, "assets", "w4.png"))
+googleLensOCR.call(path.join(__dirname, "assets", "a1.png"))
 // fs.readFileSync(path.join(__dirname, "assets", "edit.jpg"))
