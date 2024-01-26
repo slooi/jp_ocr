@@ -7,17 +7,15 @@ import path from "path"
 export class ScreenCapturer {
 	constructor() { }
 	async selectArea(): Promise<Buffer> {
-
 		try {
 			const img = await screenshot() as Buffer
-			// fs.writeFileSync(path.join(".assets", "testing.jpg"), img);
+			// fs.writeFileSync(path.join(__dirname,"..",".assets", "testing.jpg"), img);
 			return img
 		} catch (err) {
 			throw err
 		}
 	}
 }
-
 // TESTING
 // (async function () {
 // 	const timeLogger = new TimeLogger()
