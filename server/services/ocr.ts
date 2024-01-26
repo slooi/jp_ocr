@@ -16,30 +16,37 @@ export class GoogleLensOCR {
 	constructor() {
 		this.timeLogger = new TimeLogger()
 	}
-	async call(imagePath: string) {
+	async call(imageArg: string | Buffer) {
+		/* 
+			INPUTS:
+				string - path to image
+				Buffer - buffer of image
+		*/
+
+
 		try {
-			console.log(`imagePath: ${imagePath}`)
 			if (this.timeLogger) this.timeLogger.start()
 
+
+			const imageBuffer = typeof imageArg === "string" ? await fsp.readFile(imageArg) : imageArg
+			const file = await this.preprocess(imageBuffer)
 			// PRE-PROCESS
-			if (this.timeLogger) this.timeLogger.lap("PRE-PROCESSING IMAGE\t")
-			const file = await this.preprocess(imagePath)
+			if (this.timeLogger) this.timeLogger.lap("PRE-PROCESSING IMAGE  DONE")
 
 			// ADD FILE TO FORM DATA
 			var formData = new FormData();
 			formData.append('encoded_image', file);
 
 			// FETCH
-			if (this.timeLogger) this.timeLogger.lap("FETCHING\t\t")
 			const res = await fetch(`https://lens.google.com/v3/upload?&stcs=${new Date().getTime()}`, {
 				method: 'POST',
 				body: formData
 			})
+			if (this.timeLogger) this.timeLogger.lap("FETCHING  DONE")
 
 			// PROCESS RESPONSE
-			if (this.timeLogger) this.timeLogger.lap("PROCESSING RESPONSE\t")
 			const text = await res.text()
-			if (this.timeLogger) this.timeLogger.lap("PARSING TEXT\t\t")
+			if (this.timeLogger) this.timeLogger.lap("PROCESSING RESPONSE  DONE")
 			const pattern = />AF_initDataCallback\({key: 'ds:1',.*?\)\;<\/script>/
 			const matchResult = text.match(pattern)
 
@@ -62,7 +69,7 @@ export class GoogleLensOCR {
 			// Get content
 			const textLines = lensResponseJSON[3][4][0][0]
 			const ocrText = textLines.join(" ")
-			if (this.timeLogger) this.timeLogger.lap("FINISHED\t\t")
+			if (this.timeLogger) this.timeLogger.lap("PARSING TEXT  DONE")
 			console.log(ocrText)
 
 			return ocrText
@@ -70,7 +77,7 @@ export class GoogleLensOCR {
 			throw new Error(`${err}`)
 		}
 	}
-	async preprocess(imagePath: string, MAX_PIXELS = 3000000) {
+	async preprocess(imageBuffer: Buffer, MAX_PIXELS = 3000000) {
 		function findMaxPossibleDimensions(oldWidth, oldHeight, maxPixels) {
 			// Calculate scale
 			const scale = ((oldWidth * oldHeight) / maxPixels) ** 0.5
@@ -104,13 +111,13 @@ export class GoogleLensOCR {
 			}
 			return [newWidth, newHeight]
 		}
-		const file = await fsp.readFile(imagePath)
+
 
 		//####################
 		// Get image size
 		//####################
 		// Get image and image meta data
-		const image = await sharp(file)
+		const image = await sharp(imageBuffer)
 		const metaData = await image.metadata()
 
 		// Get old width
@@ -121,7 +128,7 @@ export class GoogleLensOCR {
 
 
 		if (oldWidth * oldHeight < MAX_PIXELS) {
-			if (this.timeLogger) this.timeLogger.lap("  ***   SKIPPING PRE-PROCESSING   ***  ")
+			if (this.timeLogger) this.timeLogger.lap("  ***   SKIPPING IMAGE RESIZE   ***  ")
 			return new File([new Blob([await image.toBuffer()])], 'ocrImage.png', { type: 'image/png' });
 		}
 		//####################
@@ -145,5 +152,14 @@ export class GoogleLensOCR {
 }
 
 /* TESTING */
-// const googleLensOCR = new GoogleLensOCR()
-// googleLensOCR.call(path.join(__dirname, "assets", "e3.png"))
+(async function () {
+
+	const googleLensOCR = new GoogleLensOCR()
+	googleLensOCR.call(path.join(__dirname, "..", "assets", "e3.png"))
+	googleLensOCR.call(path.join(__dirname, "..", "assets", "a1.png"))
+	googleLensOCR.call(path.join(__dirname, "..", "assets", "a2.png"))
+	googleLensOCR.call(path.join(__dirname, "..", "assets", "e0.png"))
+	googleLensOCR.call(path.join(__dirname, "..", "assets", "e1.png"))
+	googleLensOCR.call(path.join(__dirname, "..", "assets", "e2.png"))
+	googleLensOCR.call(path.join(__dirname, "..", "assets", "e3.png"))
+})()
