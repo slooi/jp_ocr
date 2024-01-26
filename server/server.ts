@@ -5,11 +5,11 @@ import { ScreenCapturer } from "./services/ScreenCapturer"
 async function controller() {
 	// Create ScreenCapturer
 	const screenCapturer = new ScreenCapturer({DEBUG_MODE:true})
-	const buffer = await screenCapturer.captureArea({x1:0,y1:0,x2:1920/2,y2:1080/2})
+	const buffer = await screenCapturer.captureArea({x1:0,y1:1000,x2:1920,y2:1080})
 
 	// Create GoogleLensOCR
-	// const googleLensOCR = new GoogleLensOCR()
-	// await googleLensOCR.call(buffer)
+	const googleLensOCR = new GoogleLensOCR()
+	await googleLensOCR.call(buffer)
 
 }
 
