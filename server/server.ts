@@ -4,15 +4,18 @@ import { ScreenCapturer } from "./services/ScreenCapturer"
 
 async function controller() {
 	// Create ScreenCapturer
-	const screenCapturer = new ScreenCapturer()
-	const buffer = await screenCapturer.captureScreen()
+	const screenCapturer = new ScreenCapturer({DEBUG_MODE:true})
+	const buffer = await screenCapturer.captureArea({x1:0,y1:0,x2:1920/2,y2:1080/2})
 
 	// Create GoogleLensOCR
-	const googleLensOCR = new GoogleLensOCR()
-	await googleLensOCR.call(buffer)
+	// const googleLensOCR = new GoogleLensOCR()
+	// await googleLensOCR.call(buffer)
 
 }
-controller()
+
+
+setTimeout(()=>{controller()},2000)
+
 
 
 // (async function () {

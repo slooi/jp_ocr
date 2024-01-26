@@ -9,7 +9,10 @@ type RectangularShape = {x1:number,y1:number,x2:number,y2:number}
 
 // Create screen capturer
 export class ScreenCapturer {
-	constructor() { }
+	DEBUG_MODE:boolean
+	constructor(options?:{DEBUG_MODE:boolean}) { 
+		this.DEBUG_MODE = options?.DEBUG_MODE || false
+	}
 	async captureScreen(): Promise<Buffer> {
 		try {
 			const img = await screenshot() as Buffer
@@ -61,9 +64,9 @@ export class ScreenCapturer {
 		try {
 			const img = await screenshot() as Buffer
 			const image = await sharp(img)
-			image
-				.extract(calcExtractArgs(rectangularShape))
-				.toFile(path.join(__dirname,"..",".assets","crop.jpg"))			//!@#!@#!@# get rid of 
+			const imageExtract = await image.extract(calcExtractArgs(rectangularShape))
+			
+			if (this.DEBUG_MODE) imageExtract.toFile(path.join(__dirname,"..",".assets","crop.jpg"))			//!@#!@#!@# get rid of 
 			// fs.writeFileSync(path.join(__dirname,"..",".assets", "testing.jpg"), img);
 			return img
 		} catch (err) {
