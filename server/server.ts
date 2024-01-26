@@ -1,11 +1,21 @@
 import path from "path"
 import { GoogleLensOCR } from "./services/ocr"
 import { ScreenCapturer } from "./services/ScreenCapturer"
+import express from "express"
+const PORT = 54321
 
-async function controller() {
+const app = express()
+app.get("/", (req, res) => {
+	console.log("GoT IT!")
+	controllerScreenToOCR()
+	res.status(200).end()
+})
+app.listen(PORT, () => { console.log("Listening on port " + PORT) })
+
+async function controllerScreenToOCR() {
 	// Create ScreenCapturer
-	const screenCapturer = new ScreenCapturer({DEBUG_MODE:true})
-	const buffer = await screenCapturer.captureArea({x1:0,y1:1000,x2:1920,y2:1080})
+	const screenCapturer = new ScreenCapturer({ DEBUG_MODE: true })
+	const buffer = await screenCapturer.captureArea({ x1: 0, y1: 1000, x2: 1920, y2: 1080 })
 
 	// Create GoogleLensOCR
 	const googleLensOCR = new GoogleLensOCR()
@@ -14,7 +24,7 @@ async function controller() {
 }
 
 
-setTimeout(()=>{controller()},2000)
+// setTimeout(() => { controllerScreenToOCR() }, 2000)
 
 
 
