@@ -151,15 +151,15 @@ export class GoogleLensOCR {
 	}
 }
 
-/* TESTING */
-(async function () {
+// /* TESTING */
+// (async function () {
 
-	const googleLensOCR = new GoogleLensOCR()
-	googleLensOCR.call(path.join(__dirname, "..", "assets", "e3.png"))
-	googleLensOCR.call(path.join(__dirname, "..", "assets", "a1.png"))
-	googleLensOCR.call(path.join(__dirname, "..", "assets", "a2.png"))
-	googleLensOCR.call(path.join(__dirname, "..", "assets", "e0.png"))
-	googleLensOCR.call(path.join(__dirname, "..", "assets", "e1.png"))
-	googleLensOCR.call(path.join(__dirname, "..", "assets", "e2.png"))
-	googleLensOCR.call(path.join(__dirname, "..", "assets", "e3.png"))
-})()
+// 	const googleLensOCR = new GoogleLensOCR()
+// 	googleLensOCR.call(path.join(__dirname, "..", "assets", "e3.png"))
+// 	googleLensOCR.call(path.join(__dirname, "..", "assets", "a1.png"))
+// 	googleLensOCR.call(path.join(__dirname, "..", "assets", "a2.png"))
+// 	googleLensOCR.call(path.join(__dirname, "..", "assets", "e0.png"))
+// 	googleLensOCR.call(path.join(__dirname, "..", "assets", "e1.png"))
+// 	googleLensOCR.call(path.join(__dirname, "..", "assets", "e2.png"))
+// 	googleLensOCR.call(path.join(__dirname, "..", "assets", "e3.png"))
+// })()
