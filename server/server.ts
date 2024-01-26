@@ -1,10 +1,18 @@
 import path from "path"
 import { GoogleLensOCR } from "./services/ocr"
+import { ScreenCapturer } from "./services/ScreenCapturer"
 
-// Create GoogleLensOCR
-const googleLensOCR = new GoogleLensOCR()
-googleLensOCR.call(path.join(__dirname, "assets", "w9.png"))
+async function controller() {
+	// Create ScreenCapturer
+	const screenCapturer = new ScreenCapturer()
+	const buffer = await screenCapturer.selectArea()
 
+	// Create GoogleLensOCR
+	const googleLensOCR = new GoogleLensOCR()
+	await googleLensOCR.call(buffer)
+
+}
+controller()
 
 
 // (async function () {
