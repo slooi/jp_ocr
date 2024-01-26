@@ -5,7 +5,7 @@ import { ScreenCapturer } from "./services/ScreenCapturer"
 async function controller() {
 	// Create ScreenCapturer
 	const screenCapturer = new ScreenCapturer()
-	const buffer = await screenCapturer.selectArea()
+	const buffer = await screenCapturer.captureScreen()
 
 	// Create GoogleLensOCR
 	const googleLensOCR = new GoogleLensOCR()

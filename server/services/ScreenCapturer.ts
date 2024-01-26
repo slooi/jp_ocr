@@ -6,7 +6,7 @@ import path from "path"
 // Create screen capturer
 export class ScreenCapturer {
 	constructor() { }
-	async selectArea(): Promise<Buffer> {
+	async captureScreen(): Promise<Buffer> {
 		try {
 			const img = await screenshot() as Buffer
 			// fs.writeFileSync(path.join(__dirname,"..",".assets", "testing.jpg"), img);
@@ -20,6 +20,6 @@ export class ScreenCapturer {
 // (async function () {
 // 	const timeLogger = new TimeLogger()
 // 	timeLogger.start()
-// 	await new ScreenCapturer().selectArea()
+// 	await new ScreenCapturer().captureScreen()
 // 	timeLogger.lap("Finished capturing")
 // })()
