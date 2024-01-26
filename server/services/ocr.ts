@@ -2,42 +2,27 @@ import { promises as fsp } from "fs"
 import path from "path"
 import { File, Blob } from "@web-std/file"
 import sharp from "sharp";
+import { TimeLogger } from "./utils/TimeLogger";
 
-class TimeLogger {
-	times: number[]
-	constructor() {
-		this.times = []
-	}
-	start() {
-		this.times.push(new Date().getTime())
-		console.log("TIME\tDELTATIME")
-		this.comment("!!!   TIMER START   !!!")
-	}
-	lap(text: string) {
-		this.comment(text)
-		this.times.push(new Date().getTime())
-	}
-	comment(text: string) {
-		console.log(Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100, "\t", Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100, "\t", text)
 
-	}
-}
-const timeLogger = new TimeLogger()
 
 export class GoogleLensOCR {
+	timeLogger: TimeLogger
 	/* 
 		This calls the Google Lens OCR api.
 		RETURNS:
 			STRING - a string containing the text of the characters in the image
 	*/
-	constructor() { }
+	constructor() {
+		this.timeLogger = new TimeLogger()
+	}
 	async call(imagePath: string) {
 		try {
 			console.log(`imagePath: ${imagePath}`)
-			timeLogger.start()
+			if (this.timeLogger) this.timeLogger.start()
 
 			// PRE-PROCESS
-			timeLogger.lap("PRE-PROCESSING IMAGE\t")
+			if (this.timeLogger) this.timeLogger.lap("PRE-PROCESSING IMAGE\t")
 			const file = await this.preprocess(imagePath)
 
 			// ADD FILE TO FORM DATA
@@ -45,16 +30,16 @@ export class GoogleLensOCR {
 			formData.append('encoded_image', file);
 
 			// FETCH
-			timeLogger.lap("FETCHING\t\t")
+			if (this.timeLogger) this.timeLogger.lap("FETCHING\t\t")
 			const res = await fetch(`https://lens.google.com/v3/upload?&stcs=${new Date().getTime()}`, {
 				method: 'POST',
 				body: formData
 			})
 
 			// PROCESS RESPONSE
-			timeLogger.lap("PROCESSING RESPONSE\t")
+			if (this.timeLogger) this.timeLogger.lap("PROCESSING RESPONSE\t")
 			const text = await res.text()
-			timeLogger.lap("PARSING TEXT\t\t")
+			if (this.timeLogger) this.timeLogger.lap("PARSING TEXT\t\t")
 			const pattern = />AF_initDataCallback\({key: 'ds:1',.*?\)\;<\/script>/
 			const matchResult = text.match(pattern)
 
@@ -77,7 +62,7 @@ export class GoogleLensOCR {
 			// Get content
 			const textLines = lensResponseJSON[3][4][0][0]
 			const ocrText = textLines.join(" ")
-			timeLogger.lap("FINISHED\t\t")
+			if (this.timeLogger) this.timeLogger.lap("FINISHED\t\t")
 			console.log(ocrText)
 
 			return ocrText
@@ -136,7 +121,7 @@ export class GoogleLensOCR {
 
 
 		if (oldWidth * oldHeight < MAX_PIXELS) {
-			timeLogger.lap("  ***   SKIPPING PRE-PROCESSING   ***  ")
+			if (this.timeLogger) this.timeLogger.lap("  ***   SKIPPING PRE-PROCESSING   ***  ")
 			return new File([new Blob([await image.toBuffer()])], 'ocrImage.png', { type: 'image/png' });
 		}
 		//####################
@@ -159,6 +144,6 @@ export class GoogleLensOCR {
 	}
 }
 
-
+/* TESTING */
 // const googleLensOCR = new GoogleLensOCR()
 // googleLensOCR.call(path.join(__dirname, "assets", "e3.png"))
