@@ -61,7 +61,9 @@ export class ScreenCapturer {
 		try {
 			const img = await screenshot() as Buffer
 			const image = await sharp(img)
-			image.extract(calcExtractArgs(rectangularShape)).toFile(path.join(__dirname,"..",".assets","crop.jpg"))
+			image
+				.extract(calcExtractArgs(rectangularShape))
+				.toFile(path.join(__dirname,"..",".assets","crop.jpg"))			//!@#!@#!@# get rid of 
 			// fs.writeFileSync(path.join(__dirname,"..",".assets", "testing.jpg"), img);
 			return img
 		} catch (err) {
