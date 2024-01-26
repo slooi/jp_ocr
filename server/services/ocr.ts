@@ -29,8 +29,9 @@ export class GoogleLensOCR {
 
 
 			const imageBuffer = typeof imageArg === "string" ? await fsp.readFile(imageArg) : imageArg
-			const file = await this.preprocess(imageBuffer)
 			// PRE-PROCESS
+			const file = await this.preprocess(imageBuffer)
+			// await fsp.writeFile(path.join(__dirname, "..", ".assets", "aaa.jpg"), imageBuffer)
 			if (this.timeLogger) this.timeLogger.lap("PRE-PROCESSING IMAGE  DONE")
 
 			// ADD FILE TO FORM DATA
