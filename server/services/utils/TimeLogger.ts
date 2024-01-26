@@ -13,6 +13,10 @@ export class TimeLogger {
 		this.times.push(new Date().getTime())
 	}
 	comment(text: string) {
-		console.log(Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100, "\t", "Task Time: ", Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100, "\t", text)
+		const totalTime = Math.round(((new Date().getTime()) - this.times[0]) / 10) / 100
+		const deltaTime = Math.round(((new Date().getTime()) - this.times[this.times.length - 1]) / 10) / 100
+
+		const taskTimeTabbs = deltaTime.toString().length === 1 ? "\t\t" : "\t"
+		console.log(totalTime, "\t", "Task Time: ", deltaTime, taskTimeTabbs, text)
 	}
 }
