@@ -10,6 +10,7 @@ class TimeLogger {
 	}
 	start() {
 		this.times.push(new Date().getTime())
+		console.log("TIME\tDELTATIME")
 		this.comment("!!!   TIMER START   !!!")
 	}
 	lap(text: string) {
@@ -135,7 +136,7 @@ export class GoogleLensOCR {
 
 
 		if (oldWidth * oldHeight < MAX_PIXELS) {
-			console.log("  ***   SKIPPING PRE-PROCESSING   ***  ")
+			timeLogger.lap("  ***   SKIPPING PRE-PROCESSING   ***  ")
 			return new File([new Blob([await image.toBuffer()])], 'ocrImage.png', { type: 'image/png' });
 		}
 		//####################
