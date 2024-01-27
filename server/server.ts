@@ -2,12 +2,24 @@ import path from "path"
 import { GoogleLensOCR } from "./services/ocr"
 import { ScreenCapturer } from "./services/ScreenCapturer"
 import express from "express"
+import multer from "multer"
 const PORT = 54321
 
+const upload = multer({ dest: 'tmpUploads/' })
 const app = express()
+app.use(express.json())
+// app.use(express.json({ limit: '50mb' }));
+// app.use(express.urlencoded({ limit: '50mb' }));
 app.get("/", (req, res) => {
 	console.log("GoT IT!")
 	controllerScreenToOCR()
+	res.status(200).end()
+})
+app.post("/", upload.single('image'), (req, res) => {
+	console.log("GoT IT! image")
+	console.log(req)
+
+	// controllerScreenToOCR()
 	res.status(200).end()
 })
 app.listen(PORT, () => { console.log("Listening on port " + PORT) })
