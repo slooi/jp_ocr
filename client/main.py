@@ -18,7 +18,7 @@ with open(image_file, "rb") as f:
     im_bytes = f.read()        
 
 # headers = {'Content-type': 'multipart/form-data', 'Accept': 'text/plain'}
-response = requests.post(api, files={'image': ('edit.jpg', io.BytesIO(im_bytes), 'image/jpeg')},timeout=5)
+response = requests.post(api, files={'image2': ('toOCR.jpg', io.BytesIO(im_bytes), 'image/jpeg')},timeout=5)
 try:
     data = response.json()     
     print(data)                
