@@ -15,9 +15,9 @@ app.get("/", (req, res) => {
 	controllerScreenToOCR()
 	res.status(200).end()
 })
-app.post("/", upload.single('image'), (req, res) => {
+app.post("/", upload.single('image2'), (req, res) => {
 	console.log("GoT IT! image")
-	console.log(req)
+	console.log(req.file)
 
 	// controllerScreenToOCR()
 	res.status(200).end()
