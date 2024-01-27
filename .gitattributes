@@ -1,3 +1,4 @@
 server/experiments/** filter=lfs diff=lfs merge=lfs -text
 server/assets/** filter=lfs diff=lfs merge=lfs -text
 learnings.md filter=lfs diff=lfs merge=lfs -text
+client/assets/** filter=lfs diff=lfs merge=lfs -text
