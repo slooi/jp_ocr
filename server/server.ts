@@ -5,7 +5,7 @@ import express from "express"
 import multer from "multer"
 const PORT = 54321
 
-const upload = multer({ dest: 'tmpUploads/' })
+const upload = multer()
 const app = express()
 app.use(express.json())
 // app.use(express.json({ limit: '50mb' }));
@@ -15,11 +15,14 @@ app.get("/", (req, res) => {
 	controllerScreenToOCR()
 	res.status(200).end()
 })
-app.post("/", upload.single('image2'), (req, res) => {
+app.post("/", upload.single('image2'), async (req, res) => {
 	console.log("GoT IT! image")
-	console.log(req.file)
+	if (!req.file) throw new Error("File was not uploaded in post!")
 
-	// controllerScreenToOCR()
+
+	const googleLensOCR = new GoogleLensOCR({ DEBUG_MODE: true })
+	await googleLensOCR.call(req.file.buffer)
+
 	res.status(200).end()
 })
 app.listen(PORT, () => { console.log("Listening on port " + PORT) })
