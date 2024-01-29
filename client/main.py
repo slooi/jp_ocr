@@ -19,17 +19,11 @@ DEBUG_MODE = True
 # keyboard.wait()
 
 
-
-
-def post_image():
-	api = 'http://localhost:54321/'
-	image_file = pathlib.Path("assets","edit.jpg")
-
-	with open(image_file, "rb") as f:
+def post_image(url:str,image_path:pathlib.Path):
+	with open(image_path, "rb") as f:
 		im_bytes = f.read()
 
-	# headers = {'Content-type': 'multipart/form-data', 'Accept': 'text/plain'}
-	response = requests.post(api, files={'image2': ('toOCR.jpg', io.BytesIO(im_bytes), 'image/jpeg')},timeout=5)
+	response = requests.post(url, files={'image2': ('toOCR.jpg', io.BytesIO(im_bytes), 'image/jpeg')},timeout=5)
 	try:
 		data = response.json()
 		print(data)
@@ -37,7 +31,7 @@ def post_image():
 		print(response.text)
 		
 
-
+post_image('http://localhost:54321/',pathlib.Path("assets","edit.jpg"))
 
 def capture_screen():
 
