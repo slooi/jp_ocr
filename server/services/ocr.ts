@@ -32,6 +32,7 @@ export class GoogleLensOCR {
 
 			const imageBuffer = typeof imageArg === "string" ? await fsp.readFile(imageArg) : imageArg
 			// PRE-PROCESS
+			// console.log(sharp.format)
 			const file = await this.preprocess(imageBuffer)
 			if (this.timeLogger) this.timeLogger.lap("PRE-PROCESSING IMAGE  DONE")
 			if (this.DEBUG_MODE) {
@@ -80,7 +81,7 @@ export class GoogleLensOCR {
 
 			return ocrText
 		} catch (err) {
-			throw new Error(`${err}`)
+			throw err
 		}
 	}
 	async preprocess(imageBuffer: Buffer, MAX_PIXELS = 3000000) {
@@ -123,6 +124,7 @@ export class GoogleLensOCR {
 		// Get image size
 		//####################
 		// Get image and image meta data
+		if (imageBuffer.buffer.byteLength === 0) throw new Error("ERROR: image uploaded has byte length of 0. Make sure to reset pointer")
 		const image = await sharp(imageBuffer)
 		const metaData = await image.metadata()
 
