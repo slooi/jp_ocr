@@ -13,7 +13,9 @@ export class GoogleLensOCR {
 		RETURNS:
 			STRING - a string containing the text of the characters in the image
 	*/
-	constructor() {
+	DEBUG_MODE: boolean
+	constructor(options?: { DEBUG_MODE: boolean }) {
+		this.DEBUG_MODE = options?.DEBUG_MODE || false
 		this.timeLogger = new TimeLogger()
 	}
 	async call(imageArg: string | Buffer) {
@@ -31,8 +33,11 @@ export class GoogleLensOCR {
 			const imageBuffer = typeof imageArg === "string" ? await fsp.readFile(imageArg) : imageArg
 			// PRE-PROCESS
 			const file = await this.preprocess(imageBuffer)
-			// await fsp.writeFile(path.join(__dirname, "..", ".assets", "aaa.jpg"), imageBuffer)
 			if (this.timeLogger) this.timeLogger.lap("PRE-PROCESSING IMAGE  DONE")
+			if (this.DEBUG_MODE) {
+				await fsp.writeFile(path.join(__dirname, ".debug." + "ocr.jpg"), imageBuffer);
+				if (this.timeLogger) this.timeLogger.lap("\t***   DEBUG IMAGE  CREATED   ***")
+			}
 
 			// ADD FILE TO FORM DATA
 			var formData = new FormData();
