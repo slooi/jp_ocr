@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Mapping
 import requests
 import keyboard
 import pathlib
@@ -16,16 +16,16 @@ DEBUG_MODE = True
 from typing import TypedDict
 
 class TwoPoints(TypedDict):
-    x1: int
-    y1: int
-    x2: int
-    y2: int
+	x1: int
+	y1: int
+	x2: int
+	y2: int
 
 class RectangularShape(TypedDict):
-    top: int
-    left: int
-    width: int
-    height: int
+	top: int
+	left: int
+	width: int
+	height: int
 
 
 def post_image(url:str,image_arg:pathlib.Path|bytes):
@@ -50,43 +50,41 @@ def post_image(url:str,image_arg:pathlib.Path|bytes):
 		
 
 def calc_rectangular_shape(two_points: TwoPoints) -> RectangularShape:
-    if two_points['x1'] == two_points['x2'] or two_points['y1'] == two_points['y2']:
-        raise ValueError("ERROR: Width AND height must both have a length > 0")
+	if two_points['x1'] == two_points['x2'] or two_points['y1'] == two_points['y2']:
+		raise ValueError("ERROR: Width AND height must both have a length > 0")
 
-    top, left, width, height = 0, 0, 0, 0
+	top, left, width, height = 0, 0, 0, 0
 
-    # Calculate vertical
-    if two_points['y1'] < two_points['y2']:
-        top = two_points['y1']
-        height = two_points['y2'] - two_points['y1']
-    else:
-        top = two_points['y2']
-        height = two_points['y1'] - two_points['y2']
+	# Calculate vertical
+	if two_points['y1'] < two_points['y2']:
+		top = two_points['y1']
+		height = two_points['y2'] - two_points['y1']
+	else:
+		top = two_points['y2']
+		height = two_points['y1'] - two_points['y2']
 
-    # Calculate horizontal
-    if two_points['x1'] < two_points['x2']:
-        left = two_points['x1']
-        width = two_points['x2'] - two_points['x1']
-    else:
-        left = two_points['x2']
-        width = two_points['x1'] - two_points['x2']
+	# Calculate horizontal
+	if two_points['x1'] < two_points['x2']:
+		left = two_points['x1']
+		width = two_points['x2'] - two_points['x1']
+	else:
+		left = two_points['x2']
+		width = two_points['x1'] - two_points['x2']
 
-    return {
-        'width': round(width),
-        'height': round(height),
-        'left': round(left),
-        'top': round(top)
-    }
+	return {
+		'width': round(width),
+		'height': round(height),
+		'left': round(left),
+		'top': round(top)
+	}
 
-def capture_screen():
 
+
+def capture_screen(screen_area:RectangularShape):
 	with mss.mss() as sct:
-		# The screen part to capture
-		monitor = calc_rectangular_shape({"x1":1000,"y1":0,"x2":1920,"y2":1080})
-		output = str(pathlib.Path(".assets","sct-{top}x{left}_{width}x{height}.png".format(**monitor)))
-
-		# Grab the data
-		sct_img = sct.grab(monitor)
+		# monitor_dict = {key: int(value) if isinstance(value, (int, float)) else 0 for key, value in screen_area.items()}
+		monitor: Mapping = screen_area
+		sct_img = sct.grab(dict(monitor))
 
 		# 
 		img = Image.frombytes("RGB", sct_img.size, sct_img.rgb)
@@ -97,17 +95,23 @@ def capture_screen():
 		# Save to the picture file
 		if DEBUG_MODE:
 			print("___DEBUG: Saved screenshot to file___")
-			print(output)
+			# print(output)
 			with open("debug.capture_screen.jpg","wb") as f:
 				f.write(img_bytes.read())
 	
 		return img_bytes.read()
 	
 
+capture_screen({"left":1,"height":1,"top":0,"width":1})
+
+
+
+
+
+
 
 # post_image('http://localhost:54321/',pathlib.Path("assets","edit.jpg"))
 
-capture_screen()
 # post_image('http://localhost:54321/',capture_screen(calc_rectangular_shape({"x1":0,"y1":0,"x2":300,"y2":1080})))
 # capture_screen()
 
