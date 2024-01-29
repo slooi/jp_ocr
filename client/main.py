@@ -1,17 +1,12 @@
+from typing import Dict
 import requests
 import keyboard
 import pathlib
-
-
-
 import base64
 import json           
 import io
 from PIL import Image
-
 import requests
-
-
 import mss.tools
 
 DEBUG_MODE = True
@@ -41,12 +36,40 @@ def post_image(url:str,image_arg:pathlib.Path|bytes):
 		print(response.text)
 		
 
+def calc_rectangular_shape(two_points: {"x1":int,"y1":int,"x2":int,"y2":int}) -> {"top":int,"left":int,"width":int,"height":int}:
+    if two_points['x1'] == two_points['x2'] or two_points['y1'] == two_points['y2']:
+        raise ValueError("ERROR: Width AND height must both have a length > 0")
+
+    top, left, width, height = 0, 0, 0, 0
+
+    # Calculate vertical
+    if two_points['y1'] < two_points['y2']:
+        top = two_points['y1']
+        height = two_points['y2'] - two_points['y1']
+    else:
+        top = two_points['y2']
+        height = two_points['y1'] - two_points['y2']
+
+    # Calculate horizontal
+    if two_points['x1'] < two_points['x2']:
+        left = two_points['x1']
+        width = two_points['x2'] - two_points['x1']
+    else:
+        left = two_points['x2']
+        width = two_points['x1'] - two_points['x2']
+
+    return {
+        'width': round(width),
+        'height': round(height),
+        'left': round(left),
+        'top': round(top)
+    }
 
 def capture_screen():
 
 	with mss.mss() as sct:
 		# The screen part to capture
-		monitor = {"top": 0, "left": 0, "width": 300, "height": 1080}
+		monitor = calc_rectangular_shape()
 		output = str(pathlib.Path(".assets","sct-{top}x{left}_{width}x{height}.png".format(**monitor)))
 
 		# Grab the data
@@ -71,7 +94,7 @@ def capture_screen():
 
 # post_image('http://localhost:54321/',pathlib.Path("assets","edit.jpg"))
 
-post_image('http://localhost:54321/',capture_screen())
+post_image('http://localhost:54321/',capture_screen({"x1",0,"y1":0,"x2":300,"y2":1080}))
 # capture_screen()
 
 # post_image('http://localhost:54321/',pathlib.Path("asdas.jpg"))
