@@ -13,6 +13,19 @@ DEBUG_MODE = True
 
 # keyboard.add_hotkey('ctrl+shift+a', lambda:requests.get("http://localhost:54321"))
 # keyboard.wait()
+from typing import TypedDict
+
+class TwoPoints(TypedDict):
+    x1: int
+    y1: int
+    x2: int
+    y2: int
+
+class RectangularShape(TypedDict):
+    top: int
+    left: int
+    width: int
+    height: int
 
 
 def post_image(url:str,image_arg:pathlib.Path|bytes):
@@ -36,7 +49,7 @@ def post_image(url:str,image_arg:pathlib.Path|bytes):
 		print(response.text)
 		
 
-def calc_rectangular_shape(two_points: {"x1":int,"y1":int,"x2":int,"y2":int}) -> {"top":int,"left":int,"width":int,"height":int}:
+def calc_rectangular_shape(two_points: TwoPoints) -> RectangularShape:
     if two_points['x1'] == two_points['x2'] or two_points['y1'] == two_points['y2']:
         raise ValueError("ERROR: Width AND height must both have a length > 0")
 
@@ -69,7 +82,7 @@ def capture_screen():
 
 	with mss.mss() as sct:
 		# The screen part to capture
-		monitor = calc_rectangular_shape()
+		monitor = calc_rectangular_shape({"x1":1000,"y1":0,"x2":1920,"y2":1080})
 		output = str(pathlib.Path(".assets","sct-{top}x{left}_{width}x{height}.png".format(**monitor)))
 
 		# Grab the data
@@ -94,7 +107,8 @@ def capture_screen():
 
 # post_image('http://localhost:54321/',pathlib.Path("assets","edit.jpg"))
 
-post_image('http://localhost:54321/',capture_screen({"x1",0,"y1":0,"x2":300,"y2":1080}))
+capture_screen()
+# post_image('http://localhost:54321/',capture_screen(calc_rectangular_shape({"x1":0,"y1":0,"x2":300,"y2":1080})))
 # capture_screen()
 
 # post_image('http://localhost:54321/',pathlib.Path("asdas.jpg"))
