@@ -1,4 +1,4 @@
-from typing import Dict, Mapping
+from typing import Dict, Mapping, cast
 import requests
 import keyboard
 import pathlib
@@ -9,23 +9,21 @@ from PIL import Image
 import requests
 import mss.tools
 
+from typing import Union
+from pydantic import BaseModel
+
 DEBUG_MODE = True
 
 # keyboard.add_hotkey('ctrl+shift+a', lambda:requests.get("http://localhost:54321"))
 # keyboard.wait()
 from typing import TypedDict
 
-class TwoPoints(TypedDict):
+class TwoPoints(BaseModel):
 	x1: int
 	y1: int
 	x2: int
 	y2: int
 
-class RectangularShape(TypedDict):
-	top: int
-	left: int
-	width: int
-	height: int
 
 
 def post_image(url:str,image_arg:pathlib.Path|bytes):
@@ -49,42 +47,54 @@ def post_image(url:str,image_arg:pathlib.Path|bytes):
 		print(response.text)
 		
 
+# class RectangularShape(TypedDict):
+# 	top: int
+# 	left: int
+# 	width: int
+# 	height: int
+
+
+class RectangularShape(BaseModel):
+    top: int
+    left: int
+    width: int
+    height: int
 def calc_rectangular_shape(two_points: TwoPoints) -> RectangularShape:
-	if two_points['x1'] == two_points['x2'] or two_points['y1'] == two_points['y2']:
+	two_points2 = two_points.model_dump()
+	if two_points2['x1'] == two_points2['x2'] or two_points2['y1'] == two_points2['y2']:
 		raise ValueError("ERROR: Width AND height must both have a length > 0")
 
 	top, left, width, height = 0, 0, 0, 0
 
 	# Calculate vertical
-	if two_points['y1'] < two_points['y2']:
-		top = two_points['y1']
-		height = two_points['y2'] - two_points['y1']
+	if two_points2['y1'] < two_points2['y2']:
+		top = two_points2['y1']
+		height = two_points2['y2'] - two_points2['y1']
 	else:
-		top = two_points['y2']
-		height = two_points['y1'] - two_points['y2']
+		top = two_points2['y2']
+		height = two_points2['y1'] - two_points2['y2']
 
 	# Calculate horizontal
-	if two_points['x1'] < two_points['x2']:
-		left = two_points['x1']
-		width = two_points['x2'] - two_points['x1']
+	if two_points2['x1'] < two_points2['x2']:
+		left = two_points2['x1']
+		width = two_points2['x2'] - two_points2['x1']
 	else:
-		left = two_points['x2']
-		width = two_points['x1'] - two_points['x2']
+		left = two_points2['x2']
+		width = two_points2['x1'] - two_points2['x2']
 
-	return {
-		'width': round(width),
-		'height': round(height),
-		'left': round(left),
-		'top': round(top)
-	}
+	return RectangularShape(width=round(width),height=round(height),left=round(left),top=round(top))
 
-
-
-def capture_screen(screen_area:RectangularShape):
+def capture_screen(screen_area:Union[RectangularShape, TwoPoints]):
 	with mss.mss() as sct:
+		# Check
+		if isinstance(screen_area,RectangularShape):
+			monitor = screen_area.model_dump() #cast to mapping
+		elif isinstance(screen_area,TwoPoints):
+			monitor= calc_rectangular_shape(screen_area).model_dump()#cast to mapping
+		
 		# monitor_dict = {key: int(value) if isinstance(value, (int, float)) else 0 for key, value in screen_area.items()}
-		monitor: Mapping = screen_area
-		sct_img = sct.grab(dict(monitor))
+		# monitor: Mapping = screen_area
+		sct_img = sct.grab(monitor)
 
 		# 
 		img = Image.frombytes("RGB", sct_img.size, sct_img.rgb)
@@ -102,7 +112,7 @@ def capture_screen(screen_area:RectangularShape):
 		return img_bytes.read()
 	
 
-capture_screen({"left":1,"height":1,"top":0,"width":1})
+capture_screen(RectangularShape(left=0,top=1000,height=100,width=1000))
 
 
 
