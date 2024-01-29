@@ -4,7 +4,7 @@ import path from "path"
 import sharp from "sharp";
 
 
-type RectangularShape = { x1: number, y1: number, x2: number, y2: number }
+type TwoPoints = { x1: number, y1: number, x2: number, y2: number }
 
 // Create screen capturer
 export class ScreenCapturer {
@@ -21,33 +21,33 @@ export class ScreenCapturer {
 			throw err
 		}
 	}
-	async captureArea(rectangularShape: RectangularShape): Promise<Buffer> {
-		function calcExtractArgs(area: RectangularShape) {
+	async captureArea(twoPoints: TwoPoints): Promise<Buffer> {
+		function calcRectangularShape(twoPoints: TwoPoints) {
 			/* 
 				Purpose:
 				- Receives some SHAPE and outputs arguments which can be used by Sharp's .extract method
 			*/
 
-			if (area.x1 === area.x2 || area.y1 === area.y2) throw new Error("ERROR: Width AND height must both have a length > 0")
+			if (twoPoints.x1 === twoPoints.x2 || twoPoints.y1 === twoPoints.y2) throw new Error("ERROR: Width AND height must both have a length > 0")
 
 			let top, left, width, height = 0
 
 			// Calculate vertical
-			if (area.y1 < area.y2) {
-				top = area.y1
-				height = area.y2 - area.y1
+			if (twoPoints.y1 < twoPoints.y2) {
+				top = twoPoints.y1
+				height = twoPoints.y2 - twoPoints.y1
 			} else {
-				top = area.y2
-				height = area.y1 - area.y2
+				top = twoPoints.y2
+				height = twoPoints.y1 - twoPoints.y2
 			}
 
 			// Calculate horizontal
-			if (area.x1 < area.x2) {
-				left = area.x1
-				width = area.x2 - area.x1
+			if (twoPoints.x1 < twoPoints.x2) {
+				left = twoPoints.x1
+				width = twoPoints.x2 - twoPoints.x1
 			} else {
-				left = area.x2
-				width = area.x1 - area.x2
+				left = twoPoints.x2
+				width = twoPoints.x1 - twoPoints.x2
 			}
 
 			return {
@@ -63,7 +63,7 @@ export class ScreenCapturer {
 		try {
 			const img = await screenshot() as Buffer
 			const image = await sharp(img)
-			const imageExtract = await image.extract(calcExtractArgs(rectangularShape))
+			const imageExtract = await image.extract(calcRectangularShape(twoPoints))
 
 			if (this.DEBUG_MODE) {
 				imageExtract.toFile(path.join(__dirname, ".debug" + "ScreenCapturer.jpg"))
