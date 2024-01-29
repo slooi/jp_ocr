@@ -21,6 +21,7 @@ DEBUG_MODE = True
 
 
 def post_image(url:str,image_arg:pathlib.Path|bytes):
+	# Check input argument
 	if type(image_arg) == bytes:
 		print("image_arg is bytes")
 		im_bytes = image_arg
@@ -29,7 +30,10 @@ def post_image(url:str,image_arg:pathlib.Path|bytes):
 		with open(image_arg, "rb") as f:
 			im_bytes = f.read()
 
+	# Send post request
 	response = requests.post(url, files={'image2': ('toOCR.jpg', io.BytesIO(im_bytes), 'image/jpeg')},timeout=5)
+
+	# Process response
 	try:
 		data = response.json()
 		print(data)
@@ -47,23 +51,19 @@ def capture_screen():
 
 		# Grab the data
 		sct_img = sct.grab(monitor)
-		
-		# Save to the picture file
-		if DEBUG_MODE:
-			mss.tools.to_png(sct_img.rgb, sct_img.size, output=output)
-			print("___DEBUG: Saved screenshot to file___")
-			print(output)
-	
 
-	
+		# 
 		img = Image.frombytes("RGB", sct_img.size, sct_img.rgb)
 		img_bytes = io.BytesIO()
 		img.save(img_bytes, format="jpeg")
-		img.save("asdas.jpg")
 		img_bytes.seek(0)
-
-		# with open("asd.jpg","wb") as f:
-		# 	f.write(img_bytes.read())
+		
+		# Save to the picture file
+		if DEBUG_MODE:
+			print("___DEBUG: Saved screenshot to file___")
+			print(output)
+			with open("debug.capture_screen.jpg","wb") as f:
+				f.write(img_bytes.read())
 	
 		return img_bytes.read()
 	
