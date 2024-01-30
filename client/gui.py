@@ -44,6 +44,10 @@ class MainWindow(QMainWindow):
 		container.setLayout(layout)
 
 		self.setCentralWidget(container)
+		# self.setMouseTracking(True) 
+		# self.label.setMouseTracking(True) 
+		# self.input.setMouseTracking(True) 
+		# container.setMouseTracking(True) 
 
 	def button_was_clicked(self):
 		self.checked = self.button.isChecked()
@@ -51,7 +55,12 @@ class MainWindow(QMainWindow):
 		print("hi",self.checked)
 
 	def mouseMoveEvent(self, e):
-		self.label.setText("mouseMoveEvent {}".format(e))
+		self.label.setText("mouseMoveEvent {} {}".format(e.globalX(),e.globalY()))
+	def mousePressEvent(self, e):
+		self.label.setText("mousePressEvent {} {}".format(e.globalX(),e.globalY()))
+	def mouseReleaseEvent(self, e):
+		self.label.setText("mouseReleaseEvent {} {}".format(e.globalX(),e.globalY()))
+	
 
 app = QApplication([])
 
