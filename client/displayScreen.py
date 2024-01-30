@@ -73,17 +73,25 @@ class MouseHandler():
 		self.y_release = 0.0
 	
 
+	# SUBSCRIBE
+	def add_mouse_callbacks(self,mousePressEventCallback:Callable[[],None],mouseMoveEventCallback:Callable[[],None],mouseReleaseEventCallback:Callable[[],None]):
+		self.mousePressEventCallback = mousePressEventCallback
+		self.mouseMoveEventCallback=mouseMoveEventCallback
+		self.mouseReleaseEventCallback=mouseReleaseEventCallback
+
 	def mouse_press_event(self,event:QGraphicsSceneMouseEvent):
 		self.x_press = event.scenePos().x()
 		self.y_press = event.scenePos().y()
+		self.mousePressEventCallback()
 	def mouse_move_event(self,event:QGraphicsSceneMouseEvent):
 		self.x_move = event.scenePos().x()
 		self.y_move = event.scenePos().y()
+		self.mouseMoveEventCallback()
 		# self.selection_area.setRect(0,0,event.scenePos().x(),event.scenePos().y())
 	def mouse_release_event(self,event:QGraphicsSceneMouseEvent):
 		self.x_release = event.scenePos().x()
 		self.y_release = event.scenePos().y()
-		pass
+		self.mouseReleaseEventCallback()
 
 class OCRCaptureApp():
 	def __init__(self) -> None:
@@ -94,6 +102,7 @@ class OCRCaptureApp():
 		# Create graphics SCENE
 		self.graphics_scene = GraphicsScene()
 		self.mouse_handler = MouseHandler(self.graphics_scene)
+		self.mouse_handler.add_mouse_callbacks(self.mouse_press_event,self.mouse_move_event,self.mouse_release_event)
 		# Create VIEW from SCENE
 		self.graphics_view = GraphicsView(self.graphics_scene)
 
@@ -131,10 +140,14 @@ class OCRCaptureApp():
 		self.graphics_scene.addItem(self.selection_area)
 
 
-	def mouse_press_event(self,event):
-		self.selection_area.setRect(0,0,event.scenePos().x(),event.scenePos().y())
-	def mouse_move_event(self,event):
-		self.selection_area.setRect(0,0,event.scenePos().x(),event.scenePos().y())
+	def mouse_press_event(self):
+		pass
+		# self.selection_area.setRect(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
+	def mouse_move_event(self):
+		self.selection_area.setRect(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move	-self.mouse_handler.x_press,self.mouse_handler.y_move-self.mouse_handler.y_press)
+		# print(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
+
+
 	def mouse_release_event(self):
 		pass
 
