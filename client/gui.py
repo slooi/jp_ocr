@@ -57,9 +57,11 @@ class MainWindow(QMainWindow):
 	def mouseMoveEvent(self, e):
 		self.label.setText("mouseMoveEvent {} {}".format(e.globalX(),e.globalY()))
 	def mousePressEvent(self, e):
-		self.label.setText("mousePressEvent {} {}".format(e.globalX(),e.globalY()))
+		if e.button() == Qt.MouseButton.LeftButton:
+			self.label.setText("mousePressEvent {} {}".format(e.globalX(),e.globalY()))
 	def mouseReleaseEvent(self, e):
-		self.label.setText("mouseReleaseEvent {} {}".format(e.globalX(),e.globalY()))
+		if e.button() == Qt.MouseButton.LeftButton:
+			self.label.setText("mouseReleaseEvent {} {}".format(e.globalX(),e.globalY()))
 	
 
 app = QApplication([])
