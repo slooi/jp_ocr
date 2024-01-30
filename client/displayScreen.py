@@ -1,3 +1,4 @@
+from typing import Callable
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QGraphicsSceneMouseEvent, QLabel, QMainWindow
@@ -6,22 +7,33 @@ from PySide6.QtGui import QPixmap, QColor
 
 
 class GraphicsScene(QGraphicsScene):
-	def __init__(self,mousePressEventCallback,mouseMoveEventCallback):
+	def __init__(self,mousePressEventCallback=None,mouseMoveEventCallback=None,mouseReleaseEventCallback=None):
 		super().__init__()
 		self.mousePressEventCallback = mousePressEventCallback
 		self.mouseMoveEventCallback = mouseMoveEventCallback
+		self.mouseReleaseEventCallback=mouseReleaseEventCallback
 
 		# Set Size
 		self.setSceneRect(0, 0, 1920, 1080)
 
 	def add_item(self,item:QGraphicsPixmapItem):
 		self.addItem(item)
-		
-	def mousePressEvent(self, event):
-		self.mousePressEventCallback(event)
 
-	def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-		self.mouseMoveEventCallback(event)
+	# SUBSCRIBE
+	def add_mouse_callbacks(self,mousePressEventCallback:Callable[[QGraphicsSceneMouseEvent], None],mouseMoveEventCallback:Callable[[QGraphicsSceneMouseEvent], None],mouseReleaseEventCallback:Callable[[QGraphicsSceneMouseEvent], None]):
+		self.mousePressEventCallback = mousePressEventCallback
+		self.mouseMoveEventCallback=mouseMoveEventCallback
+		self.mouseReleaseEventCallback=mouseReleaseEventCallback
+	
+	# LISTENERS
+	def mousePressEvent(self, event):
+		if self.mousePressEventCallback: self.mousePressEventCallback(event)
+
+	def mouseMoveEvent(self, event):
+		if self.mouseMoveEventCallback: self.mouseMoveEventCallback(event)
+
+	def mouseReleaseEvent(self, event):
+		if self.mouseReleaseEventCallback: self.mouseReleaseEventCallback(event)
 		# print(event.scenePos().x(),event.scenePos().y())
 
 class GraphicsView(QGraphicsView):
@@ -48,6 +60,31 @@ class MainWindow(QMainWindow):
 		self.setWindowFlags(Qt.FramelessWindowHint)
 		
 
+class MouseHandler():
+	def __init__(self,graphics_scene:GraphicsScene) -> None:
+		graphics_scene.add_mouse_callbacks(self.mouse_press_event,self.mouse_move_event,self.mouse_release_event)
+		
+		
+		self.x_press = 0.0
+		self.y_press = 0.0
+		self.x_move = 0.0
+		self.y_move = 0.0
+		self.x_release = 0.0
+		self.y_release = 0.0
+	
+
+	def mouse_press_event(self,event:QGraphicsSceneMouseEvent):
+		self.x_press = event.scenePos().x()
+		self.y_press = event.scenePos().y()
+	def mouse_move_event(self,event:QGraphicsSceneMouseEvent):
+		self.x_move = event.scenePos().x()
+		self.y_move = event.scenePos().y()
+		# self.selection_area.setRect(0,0,event.scenePos().x(),event.scenePos().y())
+	def mouse_release_event(self,event:QGraphicsSceneMouseEvent):
+		self.x_release = event.scenePos().x()
+		self.y_release = event.scenePos().y()
+		pass
+
 class OCRCaptureApp():
 	def __init__(self) -> None:
 		# App
@@ -55,7 +92,8 @@ class OCRCaptureApp():
 
 
 		# Create graphics SCENE
-		self.graphics_scene = GraphicsScene(self.mouse_press_event,self.mouse_move_event)
+		self.graphics_scene = GraphicsScene()
+		self.mouse_handler = MouseHandler(self.graphics_scene)
 		# Create VIEW from SCENE
 		self.graphics_view = GraphicsView(self.graphics_scene)
 
@@ -92,12 +130,14 @@ class OCRCaptureApp():
 
 		self.graphics_scene.addItem(self.selection_area)
 
-	def mouse_move_event(self,event):
-		self.selection_area.setRect(0,0,event.scenePos().x(),event.scenePos().y())
+
 	def mouse_press_event(self,event):
+		self.selection_area.setRect(0,0,event.scenePos().x(),event.scenePos().y())
+	def mouse_move_event(self,event):
 		self.selection_area.setRect(0,0,event.scenePos().x(),event.scenePos().y())
 	def mouse_release_event(self):
 		pass
+
 	def run(self):
 		self.app.exec()
 
