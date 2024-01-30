@@ -7,17 +7,24 @@ from PySide6.QtWidgets import QApplication, QLabel, QMainWindow
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
+
 		# Get screenshot
 		screen = QApplication.primaryScreen()
 		screenshot = screen.grabWindow(0)
 
-		self.setWindowFlags(Qt.FramelessWindowHint)  # Set the frameless window hint
+		# Set the frameless window hint
+		self.setWindowFlags(Qt.FramelessWindowHint)
 
 		# Display screenshot
 		self.label = QLabel()
 		self.label.setPixmap(screenshot)
 		self.setCentralWidget(self.label)
 		# self.label.setPixmap(QPixmap("client/test.jpg"))
+
+
+		# 
+		self.showFullScreen()
+		
 		
 
 if __name__ == "__main__":
