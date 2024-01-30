@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
 
 		# Set hints
 		self.setWindowFlags(Qt.FramelessWindowHint)
-
+		
 		# Create graphics SCENE
 		self.graphics_scene = GraphicsScene()
 
@@ -44,6 +44,11 @@ class MainWindow(QMainWindow):
 		graphics_view.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 		graphics_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 		graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		
+		# Add red border
+		graphics_view.setStyleSheet("""
+			border: 1px solid #AA0000;
+		""")
 		
 		# Add to window
 		self.setCentralWidget(graphics_view)
