@@ -61,26 +61,23 @@ class MainWindow(QMainWindow):
 		# Set hints
 		self.setWindowFlags(Qt.FramelessWindowHint)
 		
-		# Create graphics SCENE
-		self.graphics_scene = GraphicsScene()
-
-		# Create VIEW
-		self.graphics_view = GraphicsView(self.graphics_scene)
-
-		# Add to window
-		self.setCentralWidget(self.graphics_view)
-
-		# Full screen window
-		self.showFullScreen()
 
 class OCRCaptureApp():
 	def __init__(self) -> None:
 		# App
 		self.app = QApplication([])
 
+
+		# Create graphics SCENE
+		self.graphics_scene = GraphicsScene()
+		# Create VIEW from SCENE
+		self.graphics_view = GraphicsView(self.graphics_scene)
+
 		# Create main window
-		main_window = MainWindow()
-		main_window.show()
+		self.main_window = MainWindow()
+		self.main_window.setCentralWidget(self.graphics_view)
+		# Full screen window
+		self.main_window.showFullScreen()
 		
 	def run(self):
 		self.app.exec()
