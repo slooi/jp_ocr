@@ -65,24 +65,26 @@ class MainWindow(QMainWindow):
 		self.graphics_scene = GraphicsScene()
 
 		# Create VIEW
-		graphics_view = GraphicsView(self.graphics_scene)
-		
+		self.graphics_view = GraphicsView(self.graphics_scene)
+
 		# Add to window
-		self.setCentralWidget(graphics_view)
+		self.setCentralWidget(self.graphics_view)
 
 		# Full screen window
 		self.showFullScreen()
 
+class OCRCaptureApp():
+	def __init__(self) -> None:
+		# App
+		self.app = QApplication([])
 
+		# Create main window
+		main_window = MainWindow()
+		main_window.show()
+		
+	def run(self):
+		self.app.exec()
 
 if __name__ == "__main__":
-	# App
-	app = QApplication([])
-
-	# Create main window
-	main_window = MainWindow()
-	main_window.show()
-
-	# Run
-	app.exec()
-	
+	ocr_capture_app = OCRCaptureApp()
+	ocr_capture_app.run()
