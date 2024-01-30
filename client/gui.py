@@ -1,19 +1,58 @@
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QMainWindow
 from PySide6.QtCore import QSize, Qt
+from PySide6.QtWidgets import (
+	QApplication,
+	QLabel,
+	QLineEdit,
+	QMainWindow,
+	QVBoxLayout,
+	QWidget,
+)
 
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()	# You must always call this!
 		self.setWindowTitle("hi") 
+		self.checked = False
+		
+		# self.button = QPushButton("Push me!")
+		# self.button.setChecked(False)
+		# self.button.setCheckable(True)
+		# self.button.clicked.connect(self.button_was_clicked)
+		# self.setCentralWidget(self.button)
 
-		button = QPushButton("Push me!")
-		self.setCentralWidget(button)
+
 
 		# self.setFixedSize(QSize(400, 300))
 		# self.setMinimumSize(QSize(1920,1080))
 		# self.showMaximized()
-		self.showFullScreen()
+		# self.showFullScreen()
+
+
 		
+
+		self.input = QLineEdit()
+
+		self.label = QLabel()
+		self.input.textChanged.connect(self.label.setText)
+
+		layout = QVBoxLayout()
+		layout.addWidget(self.input)
+		layout.addWidget(self.label)
+
+		container = QWidget()
+		container.setLayout(layout)
+
+		self.setCentralWidget(container)
+
+	def button_was_clicked(self):
+		self.checked = self.button.isChecked()
+		self.button.setEnabled(False)
+		print("hi",self.checked)
+
+	def mouseMoveEvent(self, e):
+		self.label.setText("mouseMoveEvent {}".format(e))
+
 app = QApplication([])
 
 window = MainWindow()
