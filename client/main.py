@@ -16,6 +16,8 @@ DEBUG_MODE = True
 
 # keyboard.add_hotkey('ctrl+shift+a', lambda:requests.get("http://localhost:54321"))
 # keyboard.wait()
+
+
 from typing import TypedDict
 
 class TwoPoints(BaseModel):
@@ -23,8 +25,6 @@ class TwoPoints(BaseModel):
 	y1: int
 	x2: int
 	y2: int
-
-
 
 def post_image(url:str,image_arg:pathlib.Path|bytes):
 	# Check input argument
@@ -46,14 +46,6 @@ def post_image(url:str,image_arg:pathlib.Path|bytes):
 	except requests.exceptions.RequestException:
 		print(response.text)
 		
-
-# class RectangularShape(TypedDict):
-# 	top: int
-# 	left: int
-# 	width: int
-# 	height: int
-
-
 class RectangularShape(BaseModel):
     top: int
     left: int
@@ -100,7 +92,6 @@ def capture_screen(screen_area:Union[RectangularShape, TwoPoints]):
 		img = Image.frombytes("RGB", sct_img.size, sct_img.rgb)
 		img_bytes = io.BytesIO()
 		img.save(img_bytes, format="jpeg")
-		img_bytes.seek(0)
 		
 		# Save to the picture file
 		if DEBUG_MODE:
@@ -108,12 +99,16 @@ def capture_screen(screen_area:Union[RectangularShape, TwoPoints]):
 			# print(output)
 			with open("debug.capture_screen.jpg","wb") as f:
 				f.write(img_bytes.read())
-	
+
+		# MAKE SURE TO RESET THE SEEK POINTER AFTER READS
+		img_bytes.seek(0)
+
 		return img_bytes.read()
 	
 
-capture_screen(RectangularShape(left=0,top=1000,height=100,width=1000))
 
+if __name__== "__main__":
+	post_image('http://localhost:54321/',capture_screen(TwoPoints(x1=0,y1=0,x2=100,y2=1000)))
 
 
 
