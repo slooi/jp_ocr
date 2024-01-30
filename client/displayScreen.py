@@ -5,22 +5,23 @@ from PySide6.QtWidgets import QApplication, QGraphicsScene, QGraphicsView, QGrap
 from PySide6.QtGui import QPixmap, QColor
 
 
-class DrawingScene(QGraphicsScene):
+class GraphicsScene(QGraphicsScene):
 	def __init__(self, parent=None):
 		super().__init__(parent)
 
+		# Set Size
 		self.setSceneRect(0, 0, 1920, 1080)
+		
+		# Get screenshot
+		screen = QApplication.primaryScreen()
+		screenshot = screen.grabWindow(0)
+
+		# Load & Display Image 
+		image_item = QGraphicsPixmapItem(screenshot)
+		# image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
+		self.addItem(image_item)
 
 	def mousePressEvent(self, event):
-
-		# Load an image and add it to the scene at the same position as the rectangle
-		# screen = QApplication.primaryScreen()
-		# screenshot = screen.grabWindow(0)
-		image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
-		# image_item.setOffset(300, 300)
-		image_item.setPos(0,0)
-		# image_item.setPos(event.scenePos())
-		self.addItem(image_item)
 		# Create a rectangle item at the mouse click position
 		rect_item = QGraphicsRectItem(event.scenePos().x(), event.scenePos().y(), 50, 50)
 		rect_item.setBrush(QColor("blue"))
@@ -30,71 +31,36 @@ class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
 
-		# Get screenshot
-		screen = QApplication.primaryScreen()
-		screenshot = screen.grabWindow(0)
-
-		# Set the frameless window hint
+		# Set hints
 		self.setWindowFlags(Qt.FramelessWindowHint)
 
-		# Display screenshot
-		self.label = QLabel()
-		self.label.setPixmap(screenshot)
-		# self.label.setPixmap(QPixmap("client/test.jpg"))
+		# Create graphics SCENE
+		self.graphics_scene = GraphicsScene()
 
-		self.drawing_scene = DrawingScene()
+		# Create VIEW
+		graphics_view = QGraphicsView(self.graphics_scene)
 
-		layout = QVBoxLayout()
-		# layout.addWidget(self.label)
-		# layout.addWidget(self.drawing_scene)
-		drawing_view = QGraphicsView(self.drawing_scene)
+		# Set VIEW settings
+		graphics_view.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+		graphics_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 		
-		drawing_view.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-		layout.addWidget(drawing_view)
+		# Add to window
+		self.setCentralWidget(graphics_view)
 
-		container = QWidget()
-		container.setLayout(layout)
-
-		self.setCentralWidget(container)
-
-		# 
+		# Full screen window
 		self.showFullScreen()
-		
-		
+
+
 
 if __name__ == "__main__":
-
 	# App
 	app = QApplication([])
 
+	# Create main window
 	main_window = MainWindow()
 	main_window.show()
 
-	# 
+	# Run
 	app.exec()
 	
-
-""" 
-
-
-class ScreenshotApp:
-	def __init__(self):
-		self.app = QApplication([])
-		self.screen = QApplication.primaryScreen()
-		self.screenshot = self.screen.grabWindow(0)
-		
-		self.window = QMainWindow()
-		# self.window.setWindowFlags(Qt.FramelessWindowHint)  # Set the frameless window hint
-
-		self.label = QLabel()
-		self.label.setPixmap(self.screenshot)
-		self.label.show()
-		# self.label.setPixmap(QPixmap("test.jpg"))
-
-	def run(self):
-		self.app.exec()
-
-if __name__ == "__main__":
-	app_instance = ScreenshotApp()
-	app_instance.run()
- """
