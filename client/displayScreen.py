@@ -205,10 +205,9 @@ class ScreenCapturer:
         self.main_window = MainWindow()
         self.main_window.setWindowTitle("OCR")
         self.main_window.setCentralWidget(self.graphics_view)
-        # Full screen window
+
         # self.main_window.showFullScreen()
         # self.main_window.show()
-        # Hide the main window initially
         self.main_window.hide()
 
         # Register the hotkey (Ctrl+G) to show/hide the main window
@@ -272,20 +271,7 @@ class ScreenCapturer:
         # self.main_window.setWindowState(Qt.WindowState.WindowMaximized)
         self.main_window.showFullScreen()
 
-    # def mousePressEvent(self):
-    #     print("asdjasdlkjasldjaklsdjlaskjd lajdl ajsdlajdlkjs")
-
-
-# def toggle_main_window(self):
-#     if self.main_window.isVisible():
-#         self.main_window.hide()
-#     else:
-#         self.main_window.showFullScreen()
-
 
 if __name__ == "__main__":
     ocr_capture_app = ScreenCapturer()
-
-    # keyboard.add_hotkey("ctrl+g", ocr_capture_app.hide)
-    # keyboard.add_hotkey("ctrl+h", ocr_capture_app.show)
     ocr_capture_app.run()
