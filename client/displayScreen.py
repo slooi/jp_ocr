@@ -1,11 +1,12 @@
-from typing import Callable
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
+from typing import Callable, List
+from PySide6.QtCore import Qt, QRectF
+from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
     QApplication,
     QGraphicsSceneMouseEvent,
     QLabel,
     QMainWindow,
+    QGraphicsItem,
 )
 from PySide6.QtWidgets import (
     QApplication,
@@ -156,7 +157,17 @@ class MouseHandler:
             top = y_move
             height = y_press - y_move
 
-        return [left, top, width, height]
+        return [left, top, round(width), round(height)]
+
+
+class ResizableRectItem(QGraphicsRectItem):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.setPen(QPen(QColor("red"), 1))
+        self.setBrush(QColor(0, 0, 0, 0))
+
+    def boundingRect(self):
+        return QRectF(0, 0, 1920, 1080)
 
 
 class OCRCaptureApp:
@@ -174,6 +185,7 @@ class OCRCaptureApp:
         self.graphics_view = GraphicsView(self.graphics_scene)
 
         # SETUP
+        self.items: List[QGraphicsItem] = []
         self.setup()
 
         # Create main window
@@ -198,24 +210,23 @@ class OCRCaptureApp:
         # image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
 
         self.graphics_scene.addItem(image_item)
+        self.items.append(image_item)
 
         # self.graphics_scene.removeItem(image_item)
 
     def add_rectangle_SETUP(self):
         # Create selection area
-        self.selection_area = QGraphicsRectItem(0, 0, 50, 50)
-        self.selection_area.setBrush(QColor("blue"))
+        self.selection_area = ResizableRectItem(0, 0, 50, 50)
 
+        # Add the item to the scene
         self.graphics_scene.addItem(self.selection_area)
+        self.items.append(self.selection_area)
 
     def mouse_press_event(self):
         self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
-        pass
-        # self.selection_area.setRect(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
     def mouse_move_event(self):
         self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
-        # print(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
     def mouse_release_event(self):
         print("NAI WAH!")
