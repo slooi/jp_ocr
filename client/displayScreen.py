@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         # Set hints
-        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 
 
 class MouseHandler:
