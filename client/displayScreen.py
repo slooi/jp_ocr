@@ -258,11 +258,13 @@ class ScreenCapturer:
         selection_area = QGraphicsPixmapItem(cropped_pixmap)
         # selection_area.rec
         # Create selection area
-        # selection_area = ResizableRectItem(0, 0, 50, 50)
+        selection_area2 = ResizableRectItem(0, 0, 100, 100)
 
         # Add the item to the scene
         self.graphics_scene.addItem(selection_area)
+        self.graphics_scene.addItem(selection_area2)
         self.items.append(selection_area)
+        self.items.append(selection_area2)
 
     def mouse_press_event(self):
         pass
@@ -283,10 +285,18 @@ class ScreenCapturer:
             )
             selection_area = QGraphicsPixmapItem(cropped_pixmap)
             selection_area.setPos(left, top)
+
+            selection_area2 = ResizableRectItem(
+                *self.mouse_handler.mouse_positions_to_rect_shape()
+            )
             # selection_area.setBoundingRegionGranularity()
+
             self.graphics_scene.removeItem(self.items[-1])
+            self.graphics_scene.removeItem(self.items[-2])
             self.items.append(selection_area)
+            self.items.append(selection_area2)
             self.graphics_scene.addItem(selection_area)
+            self.graphics_scene.addItem(selection_area2)
 
     def mouse_release_event(self):
         # self.show()
