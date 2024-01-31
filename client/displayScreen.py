@@ -208,6 +208,9 @@ class ScreenCapturer:
         self.main_window.setWindowTitle("OCR")
         self.main_window.setCentralWidget(self.graphics_view)
 
+        # Set the cursor to CrossCursor
+        self.graphics_view.setCursor(Qt.CursorShape.CrossCursor)
+
         # self.main_window.showFullScreen()
         # self.main_window.show()
         self.main_window.hide()
