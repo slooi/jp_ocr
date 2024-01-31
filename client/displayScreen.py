@@ -240,7 +240,7 @@ class ScreenCapturer:
 
         # Load & Display Image
         image_item = QGraphicsPixmapItem(self.screenshot)
-        image_item.setOpacity(0.94)
+        image_item.setOpacity(0.7)
         # image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
 
         self.graphics_scene.addItem(image_item)
@@ -277,9 +277,11 @@ class ScreenCapturer:
 
     def show(self):
         # self.main_window.show()
-        # self.main_window.showMaximized()
+        self.main_window.showMaximized()
+        self.main_window.activateWindow()
+        self.main_window.raise_()
         # self.main_window.setWindowState(Qt.WindowState.WindowMaximized)
-        self.main_window.showFullScreen()
+        # self.main_window.showFullScreen()
 
 
 if __name__ == "__main__":
