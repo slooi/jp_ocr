@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QVBoxLayout,
     QWidget,
+    QGraphicsColorizeEffect,
 )
 from PySide6.QtGui import QPixmap, QColor
 import keyboard
@@ -79,6 +80,7 @@ class GraphicsView(QGraphicsView):
         self.setStyleSheet(
             """
 			border: 1px solid #AA0000;
+			background-color: black;
 		"""
         )
 
@@ -229,10 +231,16 @@ class ScreenCapturer:
     def add_screenshot(self):
         # Get screenshot
         screen = QApplication.primaryScreen()
-        screenshot = screen.grabWindow(0)
+        self.screenshot = screen.grabWindow(0)
+
+        # Apply brightness adjustment
+        # brightness_factor = 0.8
+        # brightness_effect = QGraphicsColorizeEffect()
+        # brightness_effect.setColor("#FFF")
 
         # Load & Display Image
-        image_item = QGraphicsPixmapItem(screenshot)
+        image_item = QGraphicsPixmapItem(self.screenshot)
+        image_item.setOpacity(0.94)
         # image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
 
         self.graphics_scene.addItem(image_item)
@@ -241,6 +249,8 @@ class ScreenCapturer:
         # self.graphics_scene.removeItem(image_item)
 
     def add_rectangle_SETUP(self):
+        if not self.screenshot:
+            raise Exception("self.screenshot must be assigned first!")
         # Create selection area
         self.selection_area = ResizableRectItem(0, 0, 50, 50)
 
