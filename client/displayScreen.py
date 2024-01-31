@@ -267,7 +267,7 @@ class ScreenCapturer:
 		selection_area = QGraphicsPixmapItem(cropped_pixmap)
 		# selection_area.rec
 		# Create selection area
-		selection_area2 = ResizableRectItem(0, 0, 100, 100)
+		selection_area2 = ResizableRectItem(0, 0, 1920-1, 1080-1)
 
 		# Add the item to the scene
 		self.graphics_scene.addItem(selection_area)
@@ -328,6 +328,11 @@ class ScreenCapturer:
 
 	def show(self):
 		self.add_screenshot()
+		
+		selection_area3 = ResizableRectItem(0, 0, 1920-1, 1080-1)
+		self.graphics_scene.addItem(selection_area3)
+		self.items.append(selection_area3)
+
 		self.add_rectangle_SETUP()
 		# self.main_window.show()
 		self.main_window.showMaximized()
