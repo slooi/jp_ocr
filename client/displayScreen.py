@@ -178,6 +178,7 @@ class OCRCaptureApp:
 
         # Create main window
         self.main_window = MainWindow()
+        self.main_window.setWindowTitle("OCR")
         self.main_window.setCentralWidget(self.graphics_view)
         # Full screen window
         self.main_window.showFullScreen()
