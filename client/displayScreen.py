@@ -235,7 +235,7 @@ class ScreenCapturer:
 
 	def setup(self):
 		self.add_screenshot()
-		self.add_rectangle_SETUP()
+		# self.add_rectangle_SETUP()
 
 	def add_screenshot(self):
 		# Get screenshot
@@ -301,6 +301,10 @@ class ScreenCapturer:
 			# selection_area.setBoundingRegionGranularity()
 
 
+			self.graphics_scene.removeItem(self.items[-1])
+			self.graphics_scene.removeItem(self.items[-2])
+			self.items.pop()
+			self.items.pop()
 			self.items.append(selection_area)
 			self.items.append(selection_area2)
 			self.graphics_scene.addItem(selection_area)
@@ -324,7 +328,7 @@ class ScreenCapturer:
 
 	def show(self):
 		self.add_screenshot()
-
+		self.add_rectangle_SETUP()
 		# self.main_window.show()
 		self.main_window.showMaximized()
 		# self.main_window.activateWindow()
