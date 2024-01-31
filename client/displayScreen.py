@@ -116,6 +116,9 @@ class MouseHandler:
     def mouse_press_event(self, event: QGraphicsSceneMouseEvent):
         self.x_press = event.scenePos().x()
         self.y_press = event.scenePos().y()
+
+        self.x_move = event.scenePos().x()  # Slight hack.......
+        self.y_move = event.scenePos().y()  # Slight hack.......
         self.mousePressEventCallback()
 
     def mouse_move_event(self, event: QGraphicsSceneMouseEvent):
@@ -127,6 +130,33 @@ class MouseHandler:
         self.x_release = event.scenePos().x()
         self.y_release = event.scenePos().y()
         self.mouseReleaseEventCallback()
+
+    # PRIVATE METHODS
+    def mouse_positions_to_rect_shape(self):
+        left, top, width, height = 0.0, 0.0, 0.0, 0.0
+
+        x_press = self.x_press
+        y_press = self.y_press
+        x_move = self.x_move
+        y_move = self.y_move
+
+        # Horizontal Calculations
+        if x_press < x_move:
+            left = x_press
+            width = x_move - x_press
+        else:
+            left = x_move
+            width = x_press - x_move
+
+        # Vertical Calculations
+        if y_press < y_move:
+            top = y_press
+            height = y_move - y_press
+        else:
+            top = y_move
+            height = y_press - y_move
+
+        return [left, top, width, height]
 
 
 class OCRCaptureApp:
@@ -175,16 +205,12 @@ class OCRCaptureApp:
         self.graphics_scene.addItem(self.selection_area)
 
     def mouse_press_event(self):
+        self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
         pass
         # self.selection_area.setRect(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
     def mouse_move_event(self):
-        self.selection_area.setRect(
-            self.mouse_handler.x_press,
-            self.mouse_handler.y_press,
-            self.mouse_handler.x_move - self.mouse_handler.x_press,
-            self.mouse_handler.y_move - self.mouse_handler.y_press,
-        )
+        self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
         # print(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
     def mouse_release_event(self):
