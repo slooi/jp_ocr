@@ -1,5 +1,6 @@
+import time
 from typing import Callable, List
-from PySide6.QtCore import Qt, QRectF
+from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
     QApplication,
@@ -18,6 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from PySide6.QtGui import QPixmap, QColor
+import keyboard
 
 
 class GraphicsScene(QGraphicsScene):
@@ -170,6 +172,17 @@ class ResizableRectItem(QGraphicsRectItem):
         return QRectF(0, 0, 1920, 1080)
 
 
+class ScreenCapturerSignaller(QObject):
+    show = Signal()
+    hide = Signal()
+
+    def __init__(self):
+        super().__init__()
+        print("Set triggers!")
+        keyboard.add_hotkey("ctrl+g", self.hide.emit)
+        keyboard.add_hotkey("ctrl+h", self.show.emit)
+
+
 class ScreenCapturer:
     def __init__(self) -> None:
         # App
@@ -193,8 +206,22 @@ class ScreenCapturer:
         self.main_window.setWindowTitle("OCR")
         self.main_window.setCentralWidget(self.graphics_view)
         # Full screen window
-        self.main_window.showFullScreen()
+        # self.main_window.showFullScreen()
         # self.main_window.show()
+        # Hide the main window initially
+        self.main_window.hide()
+
+        # Register the hotkey (Ctrl+G) to show/hide the main window
+
+        #############################
+        # ADD THREAD AND SIGNALLER
+        self._thread = QThread(self.main_window)
+
+        self.signaller_worker = ScreenCapturerSignaller()
+        self.signaller_worker.moveToThread(self._thread)
+
+        self.signaller_worker.hide.connect(self.hide)
+        self.signaller_worker.show.connect(self.show)
 
     def setup(self):
         self.add_screenshot()
@@ -229,13 +256,36 @@ class ScreenCapturer:
         self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
 
     def mouse_release_event(self):
-        print("NAI WAH!")
+        # self.show()
+        # print("NAI WAH!")
         pass
 
     def run(self):
         self.app.exec()
 
+    def hide(self):
+        self.main_window.hide()
+
+    def show(self):
+        # self.main_window.show()
+        # self.main_window.showMaximized()
+        # self.main_window.setWindowState(Qt.WindowState.WindowMaximized)
+        self.main_window.showFullScreen()
+
+    # def mousePressEvent(self):
+    #     print("asdjasdlkjasldjaklsdjlaskjd lajdl ajsdlajdlkjs")
+
+
+# def toggle_main_window(self):
+#     if self.main_window.isVisible():
+#         self.main_window.hide()
+#     else:
+#         self.main_window.showFullScreen()
+
 
 if __name__ == "__main__":
     ocr_capture_app = ScreenCapturer()
+
+    # keyboard.add_hotkey("ctrl+g", ocr_capture_app.hide)
+    # keyboard.add_hotkey("ctrl+h", ocr_capture_app.show)
     ocr_capture_app.run()
