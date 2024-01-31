@@ -170,7 +170,7 @@ class ResizableRectItem(QGraphicsRectItem):
         return QRectF(0, 0, 1920, 1080)
 
 
-class OCRCaptureApp:
+class ScreenCapturer:
     def __init__(self) -> None:
         # App
         self.app = QApplication([])
@@ -237,5 +237,5 @@ class OCRCaptureApp:
 
 
 if __name__ == "__main__":
-    ocr_capture_app = OCRCaptureApp()
+    ocr_capture_app = ScreenCapturer()
     ocr_capture_app.run()
