@@ -182,6 +182,7 @@ class OCRCaptureApp:
         self.main_window.setCentralWidget(self.graphics_view)
         # Full screen window
         self.main_window.showFullScreen()
+        # self.main_window.show()
 
     def setup(self):
         self.add_screenshot()
@@ -197,6 +198,8 @@ class OCRCaptureApp:
         # image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
 
         self.graphics_scene.addItem(image_item)
+
+        # self.graphics_scene.removeItem(image_item)
 
     def add_rectangle_SETUP(self):
         # Create selection area
@@ -215,6 +218,7 @@ class OCRCaptureApp:
         # print(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
     def mouse_release_event(self):
+        print("NAI WAH!")
         pass
 
     def run(self):
