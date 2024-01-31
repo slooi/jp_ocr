@@ -240,7 +240,7 @@ class ScreenCapturer:
 
         # Load & Display Image
         image_item = QGraphicsPixmapItem(self.screenshot)
-        image_item.setOpacity(0.7)
+        image_item.setOpacity(0.88)
         # image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
 
         self.graphics_scene.addItem(image_item)
@@ -251,18 +251,42 @@ class ScreenCapturer:
     def add_rectangle_SETUP(self):
         if not self.screenshot:
             raise Exception("self.screenshot must be assigned first!")
+
+        cropped_pixmap = self.screenshot.copy(0, 0, 100, 100)
+
+        # Create a QGraphicsPixmapItem with the cropped image
+        selection_area = QGraphicsPixmapItem(cropped_pixmap)
+        # selection_area.rec
         # Create selection area
-        self.selection_area = ResizableRectItem(0, 0, 50, 50)
+        # selection_area = ResizableRectItem(0, 0, 50, 50)
 
         # Add the item to the scene
-        self.graphics_scene.addItem(self.selection_area)
-        self.items.append(self.selection_area)
+        self.graphics_scene.addItem(selection_area)
+        self.items.append(selection_area)
 
     def mouse_press_event(self):
-        self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
+        pass
+        # self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
 
     def mouse_move_event(self):
-        self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
+        # self.cropped_pixmap = self.screenshot.copy(
+        #     *self.mouse_handler.mouse_positions_to_rect_shape()
+        # )
+        # self.graphics_scene.addItem(self.selection_area)
+        # # self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
+
+        (left, top, width, height) = self.mouse_handler.mouse_positions_to_rect_shape()
+        if width > 0 and height > 0:
+            print(self.mouse_handler.mouse_positions_to_rect_shape())
+            cropped_pixmap = self.screenshot.copy(
+                *self.mouse_handler.mouse_positions_to_rect_shape()
+            )
+            selection_area = QGraphicsPixmapItem(cropped_pixmap)
+            selection_area.setPos(left, top)
+            # selection_area.setBoundingRegionGranularity()
+            self.graphics_scene.removeItem(self.items[-1])
+            self.items.append(selection_area)
+            self.graphics_scene.addItem(selection_area)
 
     def mouse_release_event(self):
         # self.show()
@@ -278,7 +302,7 @@ class ScreenCapturer:
     def show(self):
         # self.main_window.show()
         self.main_window.showMaximized()
-        self.main_window.activateWindow()
+        # self.main_window.activateWindow()
         self.main_window.raise_()
         # self.main_window.setWindowState(Qt.WindowState.WindowMaximized)
         # self.main_window.showFullScreen()
