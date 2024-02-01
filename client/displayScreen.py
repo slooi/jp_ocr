@@ -217,7 +217,6 @@ class ScreenCapturer:
 
 		# SETUP
 		self.items: List[QGraphicsItem] = []
-		# self.setup()
 
 		# Create main window
 		self.main_window = MainWindow()
@@ -230,11 +229,8 @@ class ScreenCapturer:
 
 		# self.main_window.showFullScreen()
 		# self.main_window.show()
-		
 		self.main_window.setGeometry(0, 0, 1920, 1080)
 		self.main_window.hide()
-
-		# Register the hotkey (Ctrl+G) to show/hide the main window
 
 		#############################
 		# ADD THREAD AND SIGNALLER
@@ -248,19 +244,10 @@ class ScreenCapturer:
 		self.signaller_worker.delete.connect(self.delete)
 		print("everything is connected")
 
-	def setup(self):
-		self.add_screenshot()
-		# self.add_rectangle_SETUP()
-
 	def add_screenshot(self):
 		# Get screenshot
 		screen = QApplication.primaryScreen()
 		self.screenshot = screen.grabWindow(0)
-
-		# Apply brightness adjustment
-		# brightness_factor = 0.8
-		# brightness_effect = QGraphicsColorizeEffect()
-		# brightness_effect.setColor("#FFF")
 
 		# Load & Display Image
 		image_item = QGraphicsPixmapItem(self.screenshot)
@@ -270,37 +257,28 @@ class ScreenCapturer:
 		self.graphics_scene.addItem(image_item)
 		self.items.append(image_item)
 
-		# self.graphics_scene.removeItem(image_item)
-
-	def add_rectangle_SETUP(self):
+	def add_selection_area(self):
 		if not self.screenshot:
 			raise Exception("self.screenshot must be assigned first!")
 
+		# 1) Crop screenshot
 		cropped_pixmap = self.screenshot.copy(0, 0, 1, 1)
+		# 1.1) Create a QGraphicsPixmapItem with the cropped image
+		selection_screenshot = QGraphicsPixmapItem(cropped_pixmap)
 
-		# Create a QGraphicsPixmapItem with the cropped image
-		selection_area = QGraphicsPixmapItem(cropped_pixmap)
-		# selection_area.rec
-		# Create selection area
-		selection_area2 = ResizableRectItem(0, 0, 1920-1, 1080-1)
+		# 2) Create selection rect
+		selection_rect = ResizableRectItem(0, 0, 1920-1, 1080-1)
 
 		# Add the item to the scene``
-		self.graphics_scene.addItem(selection_area)
-		self.graphics_scene.addItem(selection_area2)
-		self.items.append(selection_area)
-		self.items.append(selection_area2)
+		self.graphics_scene.addItem(selection_screenshot)
+		self.graphics_scene.addItem(selection_rect)
+		self.items.append(selection_screenshot)
+		self.items.append(selection_rect)
 
 	def mouse_press_event(self):
 		pass
-		# self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
 
 	def mouse_move_event(self):
-		# self.cropped_pixmap = self.screenshot.copy(
-		#     *self.mouse_handler.mouse_positions_to_rect_shape()
-		# )
-		# self.graphics_scene.addItem(self.selection_area)
-		# # self.selection_area.setRect(*self.mouse_handler.mouse_positions_to_rect_shape())
-
 		(left, top, width, height) = self.mouse_handler.mouse_positions_to_rect_shape()
 		if width > 0 and height > 0:
 			print(self.mouse_handler.mouse_positions_to_rect_shape())
@@ -326,14 +304,7 @@ class ScreenCapturer:
 			self.graphics_scene.addItem(selection_area2)
 
 	def mouse_release_event(self):
-		# self.show()
-		# print("NAI WAH!")
-		pass
 		self.hide()
-		
-		for item in self.items:
-			self.graphics_scene.removeItem(item)
-		self.items = []
 
 	def run(self):
 		self.app.exec()
@@ -347,24 +318,35 @@ class ScreenCapturer:
 
 	def show(self):
 		print("showing!")
+		
+		# Remove any items from previous region selection session
+		for item in self.items:
+			self.graphics_scene.removeItem(item)
+		self.items = []
+
+		# Add screenshot
 		self.add_screenshot()
 		
-		selection_area3 = ResizableRectItem(0, 0, 1920-1, 1080-1)
-		self.graphics_scene.addItem(selection_area3)
-		self.items.append(selection_area3)
-		self.add_rectangle_SETUP()
+		# Add window border
+		window_border = ResizableRectItem(0, 0, 1920-1, 1080-1)
+		self.graphics_scene.addItem(window_border)
+		self.items.append(window_border)
+
+		# Add selection are
+		self.add_selection_area()
+
+		# DISPLAY
+		self.main_window.showFullScreen()
+		self.main_window.raise_()
+
 		# self.main_window.showFullScreen()
 		# self.main_window.show()
 		# self.main_window.setFocus()
 		# self.main_window.showMaximized()
-		# self.main_window.activateWindow()``
-		
-		
-		# self.main_window.setWindowState(Qt.WindowState.WindowMaximized)``
+		# self.main_window.activateWindow()
+		# self.main_window.setWindowState(Qt.WindowState.WindowMaximized)
 		# self.main_window.setWindowFlags(self.main_window.windowFlags() | Qt.Window)
 		# self.main_window.activateWindow()
-		self.main_window.showFullScreen()
-		self.main_window.raise_()
 		# self.main_window.setWindowFlag(Qt.FramelessWindowHint, True)
 		
 
