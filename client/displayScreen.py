@@ -183,17 +183,26 @@ class ResizableRectItem(QGraphicsRectItem):
 class ScreenCapturerSignaller(QObject):
 	show = Signal()
 	hide = Signal()
+	delete = Signal()
 
 	def __init__(self):
 		super().__init__()
 		print("Set triggers!")
 		# keyboard.add_hotkey("ctrl+g", self.hide.emit)
-		keyboard.add_hotkey("left windows+`", self.show.emit)
+		# keyboard.add_hotkey("left windows+`", self.show.emit)
+		keyboard.add_hotkey("alt+z", self.asd)
+		keyboard.add_hotkey("ctrl+c", self.delete.emit)
+		# keyboard.wait()
+	
+
+	def asd(self):
+		print("weee")
+		self.show.emit()
 
 
 class ScreenCapturer:
 	def __init__(self) -> None:
-		# App
+		# App``
 		self.app = QApplication([])
 
 		# Create graphics SCENE
@@ -213,6 +222,7 @@ class ScreenCapturer:
 		self.main_window = MainWindow()
 		self.main_window.setWindowTitle("OCR")
 		self.main_window.setCentralWidget(self.graphics_view)
+		self.main_window.move(0,0)
 
 		# Set the cursor to CrossCursor
 		self.graphics_view.setCursor(Qt.CursorShape.CrossCursor)
@@ -232,6 +242,8 @@ class ScreenCapturer:
 
 		self.signaller_worker.hide.connect(self.hide)
 		self.signaller_worker.show.connect(self.show)
+		self.signaller_worker.delete.connect(self.delete)
+		print("everything is connected")
 
 	def setup(self):
 		self.add_screenshot()
@@ -261,7 +273,7 @@ class ScreenCapturer:
 		if not self.screenshot:
 			raise Exception("self.screenshot must be assigned first!")
 
-		cropped_pixmap = self.screenshot.copy(0, 0, 0, 0)
+		cropped_pixmap = self.screenshot.copy(0, 0, 1, 1)
 
 		# Create a QGraphicsPixmapItem with the cropped image
 		selection_area = QGraphicsPixmapItem(cropped_pixmap)
@@ -269,7 +281,7 @@ class ScreenCapturer:
 		# Create selection area
 		selection_area2 = ResizableRectItem(0, 0, 1920-1, 1080-1)
 
-		# Add the item to the scene
+		# Add the item to the scene``
 		self.graphics_scene.addItem(selection_area)
 		self.graphics_scene.addItem(selection_area2)
 		self.items.append(selection_area)
@@ -326,22 +338,28 @@ class ScreenCapturer:
 	def hide(self):
 		self.main_window.hide()
 
+	def delete(self):
+		print("QUITING")
+		self.app.quit()
+
 	def show(self):
+		print("showing!")
 		self.add_screenshot()
 		
 		selection_area3 = ResizableRectItem(0, 0, 1920-1, 1080-1)
 		self.graphics_scene.addItem(selection_area3)
 		self.items.append(selection_area3)
-
 		self.add_rectangle_SETUP()
-		# self.main_window.show()
-		self.main_window.showMaximized()
-		# self.main_window.activateWindow()
-		self.main_window.raise_()
-		
-		
-		# self.main_window.setWindowState(Qt.WindowState.WindowMaximized)
 		# self.main_window.showFullScreen()
+		# self.main_window.show()
+		# self.main_window.setFocus()
+		# self.main_window.showMaximized()
+		# self.main_window.activateWindow()``
+		
+		
+		# self.main_window.setWindowState(Qt.WindowState.WindowMaximized)``
+		self.main_window.showFullScreen()
+		self.main_window.raise_()
 		
 
 
