@@ -187,8 +187,8 @@ class ScreenCapturerSignaller(QObject):
 	def __init__(self):
 		super().__init__()
 		print("Set triggers!")
-		keyboard.add_hotkey("ctrl+g", self.hide.emit)
-		keyboard.add_hotkey("ctrl+h", self.show.emit)
+		# keyboard.add_hotkey("ctrl+g", self.hide.emit)
+		keyboard.add_hotkey("left windows+`", self.show.emit)
 
 
 class ScreenCapturer:
