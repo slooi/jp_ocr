@@ -1,6 +1,6 @@
 import time
 from typing import Callable, List
-from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread
+from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
 	QApplication,
@@ -251,9 +251,9 @@ class ScreenCapturer:
 			raise Exception("self.screenshot must be assigned first!")
 
 		# 1) Crop screenshot
-		cropped_pixmap = self.screenshot.copy(0, 0, 1, 1)
+		self.cropped_pixmap = self.screenshot.copy(0, 0, 1, 1)
 		# 1.1) Create a QGraphicsPixmapItem with the cropped image
-		selection_screenshot = QGraphicsPixmapItem(cropped_pixmap)
+		selection_screenshot = QGraphicsPixmapItem(self.cropped_pixmap)
 
 		# 2) Create selection rect
 		selection_rect = ResizableRectItem(0, 0, 1920-1, 1080-1)
@@ -271,10 +271,10 @@ class ScreenCapturer:
 		(left, top, width, height) = self.mouse_handler.mouse_positions_to_rect_shape()
 		if width > 0 and height > 0:
 			print(self.mouse_handler.mouse_positions_to_rect_shape())
-			cropped_pixmap = self.screenshot.copy(
+			self.cropped_pixmap = self.screenshot.copy(
 				*self.mouse_handler.mouse_positions_to_rect_shape()
 			)
-			selection_area = QGraphicsPixmapItem(cropped_pixmap)
+			selection_area = QGraphicsPixmapItem(self.cropped_pixmap)
 			selection_area.setPos(left, top)
 
 			selection_area2 = ResizableRectItem(
@@ -293,6 +293,7 @@ class ScreenCapturer:
 			self.graphics_scene.addItem(selection_area2)
 
 	def mouse_release_event(self):
+		convert_pixmap_to_bytes(self.cropped_pixmap)
 		self.hide()
 
 	def run(self):
@@ -339,7 +340,20 @@ class ScreenCapturer:
 		# self.main_window.activateWindow()
 		# self.main_window.setWindowFlag(Qt.FramelessWindowHint, True)
 		
+def convert_pixmap_to_bytes(pixmap:QPixmap):
+	buffer_array = QByteArray()
 
+	buffer = QBuffer(buffer_array)
+	buffer.open (QIODevice.OpenModeFlag.WriteOnly)
+
+	ok = pixmap.save(buffer,"JPG")
+	assert ok
+
+	pixmap_bytes = buffer_array.data()
+	# print("#pixmap_bytes")
+	# print(pixmap_bytes)
+	# print("^pixmap_bytes")
+	return pixmap_bytes
 
 if __name__ == "__main__":
 	ocr_capture_app = ScreenCapturer()

@@ -111,8 +111,9 @@ def capture_screen(screen_area: Union[RectangularShape, TwoPoints]):
         if DEBUG_MODE:
             print("___DEBUG: Saved screenshot to file___")
             # print(output)
-            with open("debug.capture_screen.jpg", "wb") as f:
-                f.write(img_bytes.read())
+            # with open("debug.capture_screen.jpg", "wb") as f:
+            #     f.write(img_bytes.read())
+            img.save("debug.capture_screen.jpg", format="jpeg")
 
         # MAKE SURE TO RESET THE SEEK POINTER AFTER READS
         img_bytes.seek(0)
