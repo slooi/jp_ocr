@@ -1,6 +1,6 @@
 import time
 from typing import Callable, List
-from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer
+from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
 	QApplication,
@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QPixmap, QColor
 import keyboard
+
+from main import post_image
 
 
 class GraphicsScene(QGraphicsScene):
@@ -188,6 +190,14 @@ class ScreenCapturerSignaller(QObject):
 		keyboard.add_hotkey("ctrl+c", self.delete.emit)
 		# keyboard.wait()
 	
+class NetworkRequestWorker(QRunnable):
+	def __init__(self,url,data):
+		super().__init__()
+		self.url = url
+		self.data = data
+
+	def run(self):
+		post_image(self.url, self.data)
 
 
 class ScreenCapturer:
@@ -293,7 +303,15 @@ class ScreenCapturer:
 			self.graphics_scene.addItem(selection_area2)
 
 	def mouse_release_event(self):
-		convert_pixmap_to_bytes(self.cropped_pixmap)
+		captured_region = convert_pixmap_to_bytes(self.cropped_pixmap)
+		print("POSTING")
+		
+		self._thread2 = QThread(self.main_window)
+
+
+		self.thread_pool = QThreadPool()
+		worker = NetworkRequestWorker("http://localhost:54321",captured_region)
+		self.thread_pool.start(worker)
 		self.hide()
 
 	def run(self):
