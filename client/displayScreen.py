@@ -261,7 +261,7 @@ class ScreenCapturer:
 		if not self.screenshot:
 			raise Exception("self.screenshot must be assigned first!")
 
-		cropped_pixmap = self.screenshot.copy(0, 0, 100, 100)
+		cropped_pixmap = self.screenshot.copy(0, 0, 0, 0)
 
 		# Create a QGraphicsPixmapItem with the cropped image
 		selection_area = QGraphicsPixmapItem(cropped_pixmap)
