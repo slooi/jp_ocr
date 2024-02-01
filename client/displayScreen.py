@@ -82,14 +82,7 @@ class GraphicsView(QGraphicsView):
 			border: 0px solid #000000;
 			background-color: black;
 		"""
-		)		
-		# self.setStyleSheet(
-		# 	"""
-		# 	border: 1px solid #AA0000;
-		# 	background-color: black;
-		# """
-		# )
-
+		)
 
 class MainWindow(QMainWindow):
 	def __init__(self):
@@ -189,16 +182,12 @@ class ScreenCapturerSignaller(QObject):
 	def __init__(self):
 		super().__init__()
 		print("Set triggers!")
-		# keyboard.add_hotkey("ctrl+g", self.hide.emit)
-		# keyboard.add_hotkey("left windows+`", self.show.emit)
-		keyboard.add_hotkey("alt+z", self.asd)
+		keyboard.add_hotkey("esc", self.hide.emit)
+		keyboard.add_hotkey("left windows+`", self.show.emit)
+		keyboard.add_hotkey("alt+z", self.show.emit)
 		keyboard.add_hotkey("ctrl+c", self.delete.emit)
 		# keyboard.wait()
 	
-
-	def asd(self):
-		print("weee")
-		self.show.emit()
 
 
 class ScreenCapturer:
@@ -313,8 +302,9 @@ class ScreenCapturer:
 		self.main_window.hide()
 
 	def delete(self):
-		print("QUITING")
-		self.app.quit()
+		if self.graphics_view.hasFocus():
+			print("QUITING")
+			self.app.quit()
 
 	def show(self):
 		print("showing!")
