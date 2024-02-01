@@ -96,7 +96,8 @@ class MainWindow(QMainWindow):
 		super().__init__()
 
 		# Set hints
-		self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+		# self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
 
 class MouseHandler:
@@ -229,6 +230,8 @@ class ScreenCapturer:
 
 		# self.main_window.showFullScreen()
 		# self.main_window.show()
+		
+		self.main_window.setGeometry(0, 0, 1920, 1080)
 		self.main_window.hide()
 
 		# Register the hotkey (Ctrl+G) to show/hide the main window
@@ -358,8 +361,11 @@ class ScreenCapturer:
 		
 		
 		# self.main_window.setWindowState(Qt.WindowState.WindowMaximized)``
+		# self.main_window.setWindowFlags(self.main_window.windowFlags() | Qt.Window)
+		# self.main_window.activateWindow()
 		self.main_window.showFullScreen()
 		self.main_window.raise_()
+		# self.main_window.setWindowFlag(Qt.FramelessWindowHint, True)
 		
 
 
