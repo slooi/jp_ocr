@@ -35,7 +35,7 @@ class HotkeyHandler():
 
 	def __init__(self,hotkeys:List[Hotkey]) -> None:
 		# (160, 'shift'), (162, 'ctrl_l'), (91, 'cmd' THIS ALSO THE WIN KEY), (164, 'alt_l'), (165, 'alt_gr'), (161, 'shift_r'), (163, 'ctrl_r')
-		self.modifier_vks = (160, 162, 91, 164, 165, 161, 163)
+		self.MODIFIER_VKCS = (160, 162, 91, 164, 165, 161, 163)
 
 		""" 
 		hotkey: win+shift+`
@@ -78,6 +78,17 @@ class HotkeyHandler():
 			def win32_event_filter(msg, data):
 				# Check if key has just been pressed or released
 				if (msg == self.KEY_DOWN or msg == self.KEY_UP):
+
+					code = data.vkCode
+
+					# 1) Iterate over all the hotkeys. And if Hotkey object's key == code, store Hotkey object
+
+					# 1.1) Iterate over all STORED hotkeys, check `Hotkey's modifiers` and see if they're pressed (self.keys_pressed)
+
+					# 1.2) If the above is true, then SUPPRESS
+
+
+
 
 					# Prevent OTHER PROGRAMS from sensing this key press
 					if listener: listener._suppress = True
