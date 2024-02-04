@@ -8,8 +8,6 @@ from PySide6.QtWidgets import (
 	QLabel,
 	QMainWindow,
 	QGraphicsItem,
-)
-from PySide6.QtWidgets import (
 	QApplication,
 	QGraphicsScene,
 	QGraphicsView,
@@ -21,9 +19,20 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QPixmap, QColor
 import keyboard
+from HotkeyHandler import Hotkey
+from PySide6.QtCore import QObject, Signal, Slot, SLOT
 
 from main import post_image
 
+from HotkeyHandler import Hotkey, WindowsHotkeyHandler
+
+class HotkeyRunnable(QRunnable):
+	def __init__(self,hotkeys:List[Hotkey]) -> None:
+		super().__init__()
+		self.hotkeys=hotkeys
+
+	def run(self):
+		WindowsHotkeyHandler(self.hotkeys)
 
 class GraphicsScene(QGraphicsScene):
 	def __init__(
@@ -176,19 +185,20 @@ class ResizableRectItem(QGraphicsRectItem):
 		return QRectF(0, 0, 1920, 1080)
 
 
-class ScreenCapturerSignaller(QObject):
-	show = Signal()
-	hide = Signal()
-	delete = Signal()
+# class ScreenCapturerSignaller(QObject):
+# 	show = Signal()
+# 	hide = Signal()
+# 	delete = Signal()
 
-	def __init__(self):
-		super().__init__()
-		print("Set triggers!")
-		keyboard.add_hotkey("esc", self.hide.emit)
-		keyboard.add_hotkey("left windows+`", self.show.emit)
-		keyboard.add_hotkey("alt+z", self.show.emit)
-		keyboard.add_hotkey("ctrl+c", self.delete.emit)
-	
+# 	def __init__(self):
+# 		super().__init__()
+# 		print("Set triggers!")
+# 		keyboard.add_hotkey("esc", self.hide.emit)
+# 		keyboard.add_hotkey("left windows+`", self.show.emit)
+# 		keyboard.add_hotkey("alt+z", self.show.emit)
+# 		keyboard.add_hotkey("ctrl+c", self.delete.emit)
+
+
 class NetworkRequestWorker(QRunnable):
 	def __init__(self,url,data):
 		super().__init__()
@@ -199,10 +209,16 @@ class NetworkRequestWorker(QRunnable):
 		post_image(self.url, self.data)
 
 
-class ScreenCapturer:
-	def __init__(self) -> None:
-		# App``
-		self.app = QApplication([])
+class ScreenCapturer(QWidget):
+	show_signal = Signal()
+	hide_signal = Signal()
+	delete_signal = Signal()
+
+	def __init__(self,app:QApplication) -> None:
+		super().__init__()
+
+		# App
+		self.app = app
 
 		# Create graphics SCENE
 		self.graphics_scene = GraphicsScene()
@@ -230,17 +246,28 @@ class ScreenCapturer:
 		self.main_window.setGeometry(0, 0, 1920, 1080)
 		self.main_window.hide()
 
+
 		#############################
 		# ADD THREAD AND SIGNALLER
-		self._thread = QThread(self.main_window)
+		self.thread_pool = QThreadPool()
+		####
+		
+		# self._thread = QThread(self.main_window)
 
-		self.signaller_worker = ScreenCapturerSignaller()
-		self.signaller_worker.moveToThread(self._thread)
+		# self.signaller_worker = ScreenCapturerSignaller()
+		# self.signaller_worker.moveToThread(self._thread)
 
-		self.signaller_worker.hide.connect(self.hide)
-		self.signaller_worker.show.connect(self.show)
-		self.signaller_worker.delete.connect(self.delete)
-		print("everything is connected")
+		# self.signaller_worker.hide.connect(self.hide)
+		# self.signaller_worker.show.connect(self.show)
+		# self.signaller_worker.delete.connect(self.delete)
+		# print("everything is connected")
+
+		#############################
+		# ADD THREAD AND SIGNALLER
+		self.show_signal.connect(self.show)
+		self.hide_signal.connect(self.hide)
+		self.delete_signal.connect(self.delete)
+
 
 	def add_screenshot(self):
 		# Get screenshot
@@ -303,7 +330,6 @@ class ScreenCapturer:
 		captured_region = convert_pixmap_to_bytes(self.cropped_pixmap)
 		print("POSTING")
 		
-		self.thread_pool = QThreadPool()
 		worker = NetworkRequestWorker("http://localhost:54321",captured_region)
 		self.thread_pool.start(worker)
 
@@ -366,5 +392,19 @@ def convert_pixmap_to_bytes(pixmap:QPixmap):
 	return pixmap_bytes
 
 if __name__ == "__main__":
-	ocr_capture_app = ScreenCapturer()
+	app = QApplication([])
+	ocr_capture_app = ScreenCapturer(app)
+
+
+	thread_pool = QThreadPool()
+	hotkey_runnable = HotkeyRunnable([Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit)])
+	thread_pool.start(hotkey_runnable)
+
+	print("Setup done!")
+	
 	ocr_capture_app.run()
+
+""" 
+
+`
+ """

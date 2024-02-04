@@ -75,7 +75,7 @@ export class GoogleLensOCR {
 
 			// Get content
 			const textLines = lensResponseJSON[3][4][0][0]
-			const ocrText = textLines.join(" ")
+			const ocrText = textLines.join("\n")
 			if (this.timeLogger) this.timeLogger.lap("PARSING TEXT  DONE")
 			console.log(ocrText)
 
