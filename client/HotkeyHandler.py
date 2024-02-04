@@ -15,13 +15,13 @@ class Hotkey(BaseModel): # type: ignore
 	key: int
 	callback: Callable[[],None]
 
-class HotkeyHandler():
+class BaseHotkeyHandler():
 	""" 
 		This class handles the calling of hotkeys and suppression of keys
 
 		EXAMPLE USAGE:
-		hotkeyHandler = HotkeyHandler()
-		hotkeyHandler.add_hotkey_vk("192")
+		BasehotkeyHandler = BaseHotkeyHandler()
+		BasehotkeyHandler.add_hotkey_vk("192")
 
 		EXAMPLES:
 			hotkey: win+shift+`
@@ -48,7 +48,7 @@ class HotkeyHandler():
 		self.DEBUG_MODE=DEBUG_MODE
 
 
-class WindowsHotkeyHandler(HotkeyHandler):
+class WindowsHotkeyHandler(BaseHotkeyHandler):
 	# (160, 'shift'), (162, 'ctrl_l'), (91, 'cmd' THIS ALSO THE WIN KEY), (164, 'alt_l'), (165, 'alt_gr'), (161, 'shift_r'), (163, 'ctrl_r')
 	# self.MODIFIER_VKCS = (160, 162, 91, 164, 165, 161, 163)
 
@@ -69,7 +69,9 @@ class WindowsHotkeyHandler(HotkeyHandler):
 
 			def on_press(key): pass
 			def on_release(key):
-				if key == keyboard.Key.num_lock: return False # Stop listener
+				if key == keyboard.Key.num_lock: 
+					print("HotkeyHandler stopped")
+					return False # Stop listener
 				
 			def win32_event_filter(msg, data):
 
@@ -122,7 +124,7 @@ class WindowsHotkeyHandler(HotkeyHandler):
 				return True # if you return False, your on_press/on_release will not be called
 
 			# Collect events until released
-			listener =  keyboard.Listener(
+			listener = keyboard.Listener(
 					on_press=on_press,
 					on_release=on_release, # type: ignore
 					win32_event_filter=win32_event_filter)
@@ -137,6 +139,7 @@ class WindowsHotkeyHandler(HotkeyHandler):
 192 - backtick(`)
 ``
 """
-WindowsHotkeyHandler([Hotkey(modifiers=[91],key=192,callback=lambda:print("hi"))])
+if __name__ == "__main__":
+	WindowsHotkeyHandler([Hotkey(modifiers=[91],key=192,callback=lambda:print("hi"))])
 
 
