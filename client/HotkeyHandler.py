@@ -34,15 +34,6 @@ class HotkeyHandler():
 	"""
 
 	def __init__(self,hotkeys:List[Hotkey]) -> None:
-		# (160, 'shift'), (162, 'ctrl_l'), (91, 'cmd' THIS ALSO THE WIN KEY), (164, 'alt_l'), (165, 'alt_gr'), (161, 'shift_r'), (163, 'ctrl_r')
-		self.MODIFIER_VKCS = (160, 162, 91, 164, 165, 161, 163)
-
-		self.KEY_DOWN = 256
-		self.KEY_UP = 257
-
-		self.WM_SYSKEYDOWN = 0x0104
-		self.WM_SYSKEYUP = 0x0105
-
 		""" 
 		hotkeys:[
 			{
@@ -55,22 +46,37 @@ class HotkeyHandler():
 		self.hotkeys:List[Hotkey] = hotkeys
 		self.keys_pressed:Dict[int,bool] = {}
 
+
+class WindowsHotkeyHandler(HotkeyHandler):
+	# (160, 'shift'), (162, 'ctrl_l'), (91, 'cmd' THIS ALSO THE WIN KEY), (164, 'alt_l'), (165, 'alt_gr'), (161, 'shift_r'), (163, 'ctrl_r')
+	# self.MODIFIER_VKCS = (160, 162, 91, 164, 165, 161, 163)
+
+	KEY_DOWN = 256
+	KEY_UP = 257
+
+	WM_SYSKEYDOWN = 0x0104
+	WM_SYSKEYUP = 0x0105
+
+	def __init__(self,hotkeys:List[Hotkey]):
+		super().__init__(hotkeys)
 		self.setup()
 
-	
+
 	def setup(self):
 		def setup_listener():
-			listener:Union[None,keyboard.Listener] = None
+			listener:Union[None,keyboard.Listener] = None	# WARNING: This listener is used for all hotkeys in this class. Not just one key, thus you can only suppress all keys, or no keys 
 
 			def on_press(key): pass
 			def on_release(key):
 				if key == keyboard.Key.num_lock: return False # Stop listener
 				
 			def win32_event_filter(msg, data):
-				# On windows event, check if a normal key or system key down/up event occurred
+
 
 				DOWN_EVENT:bool = bool(msg == self.KEY_DOWN or msg == self.WM_SYSKEYDOWN)
 				UP_EVENT:bool = bool(msg == self.KEY_UP or msg == self.WM_SYSKEYUP)
+
+				# On windows event, check if a normal key or system key down/up event occurred
 				if (DOWN_EVENT or UP_EVENT):
 					code = data.vkCode
 
@@ -125,6 +131,6 @@ class HotkeyHandler():
 192 - backtick(`)
 ``
 """
-HotkeyHandler([Hotkey(modifiers=[91],key=192,callback=lambda:print("hi"))])
+WindowsHotkeyHandler([Hotkey(modifiers=[91],key=192,callback=lambda:print("hi"))])
 
 
