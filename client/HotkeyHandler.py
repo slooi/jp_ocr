@@ -33,7 +33,7 @@ class HotkeyHandler():
 		- When a ALL REGISTERED modifier keys of a hotkey is being pressed, if said hotkey's normal key is pressed it is suppressed so the currently focused program is not affected (eg: notepad).
 	"""
 
-	def __init__(self,hotkeys:List[Hotkey]) -> None:
+	def __init__(self,hotkeys:List[Hotkey],DEBUG_MODE=False) -> None:
 		""" 
 		hotkeys:[
 			{
@@ -45,6 +45,7 @@ class HotkeyHandler():
 		"""
 		self.hotkeys:List[Hotkey] = hotkeys
 		self.keys_pressed:Dict[int,bool] = {}
+		self.DEBUG_MODE=DEBUG_MODE
 
 
 class WindowsHotkeyHandler(HotkeyHandler):
@@ -57,8 +58,8 @@ class WindowsHotkeyHandler(HotkeyHandler):
 	WM_SYSKEYDOWN = 0x0104
 	WM_SYSKEYUP = 0x0105
 
-	def __init__(self,hotkeys:List[Hotkey]):
-		super().__init__(hotkeys)
+	def __init__(self,hotkeys:List[Hotkey],DEBUG_MODE:bool=False):
+		super().__init__(hotkeys,DEBUG_MODE=DEBUG_MODE)
 		self.setup()
 
 
@@ -83,8 +84,9 @@ class WindowsHotkeyHandler(HotkeyHandler):
 					# Update keys pressed
 					self.keys_pressed[code] = DOWN_EVENT
 
-					print("code: {}, keydown: {}".format(code,DOWN_EVENT))
-					print(self.keys_pressed)
+					if self.DEBUG_MODE:
+						print("code: {}, keydown: {}".format(code,DOWN_EVENT))
+						print(self.keys_pressed)
 
 					if DOWN_EVENT:
 						# 1) Iterate over all the hotkeys
@@ -104,11 +106,15 @@ class WindowsHotkeyHandler(HotkeyHandler):
 							# 1.3) If **ALL** the `Hotkey's modifiers` are currently being pressed, then SUPPRESS the normal key!
 							if num_of_modifiers_pressed == len(hotkey.modifiers):
 								if listener: listener._suppress = True # Prevent OTHER PROGRAMS from sensing this key press
-								print("### SUPPRESSING KEY PRESS ###")
+								if self.DEBUG_MODE:
+									print("### SUPPRESSING KEY PRESS ###")
+								hotkey.callback()
 								break
 							else:
 								if listener: listener._suppress = False
-								print("Modifier keys are not pressed")
+								
+								if self.DEBUG_MODE:
+									print("Modifier keys are not pressed")
 					if UP_EVENT:
 						# Make sure to make listener unsuppress when release ANY key. Remember the listener which listens for ALL KEYS gets suppressed, so we need to unsuppress it ASAP 
 						if listener: listener._suppress = False
