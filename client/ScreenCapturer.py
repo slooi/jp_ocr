@@ -188,7 +188,6 @@ class ScreenCapturerSignaller(QObject):
 		keyboard.add_hotkey("left windows+`", self.show.emit)
 		keyboard.add_hotkey("alt+z", self.show.emit)
 		keyboard.add_hotkey("ctrl+c", self.delete.emit)
-		# keyboard.wait()
 	
 class NetworkRequestWorker(QRunnable):
 	def __init__(self,url,data):
@@ -290,8 +289,6 @@ class ScreenCapturer:
 			selection_area2 = ResizableRectItem(
 				*self.mouse_handler.mouse_positions_to_rect_shape()
 			)
-			# selection_area.setBoundingRegionGranularity()
-
 
 			self.graphics_scene.removeItem(self.items[-1])
 			self.graphics_scene.removeItem(self.items[-2])
@@ -306,12 +303,10 @@ class ScreenCapturer:
 		captured_region = convert_pixmap_to_bytes(self.cropped_pixmap)
 		print("POSTING")
 		
-		self._thread2 = QThread(self.main_window)
-
-
 		self.thread_pool = QThreadPool()
 		worker = NetworkRequestWorker("http://localhost:54321",captured_region)
 		self.thread_pool.start(worker)
+
 		self.hide()
 
 	def run(self):
@@ -368,9 +363,6 @@ def convert_pixmap_to_bytes(pixmap:QPixmap):
 	assert ok
 
 	pixmap_bytes = buffer_array.data()
-	# print("#pixmap_bytes")
-	# print(pixmap_bytes)
-	# print("^pixmap_bytes")
 	return pixmap_bytes
 
 if __name__ == "__main__":
