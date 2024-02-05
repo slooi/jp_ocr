@@ -66,7 +66,7 @@ export class ScreenCapturer {
 			const imageExtract = await image.extract(calcRectangularShape(twoPoints))
 
 			if (this.DEBUG_MODE) {
-				imageExtract.toFile(path.join(__dirname, ".debug" + "ScreenCapturer.jpg"))
+				imageExtract.toFile(path.join(__dirname, ".debug." + "ScreenCapturer.jpg"))
 				console.log("___   CREATED DEBUG IMAGE   ___")
 				// if (this.timeLogger) this.timeLogger.lap("\t***   DEBUG IMAGE  CREATED   ***")
 			}
