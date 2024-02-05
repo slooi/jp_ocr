@@ -71,9 +71,10 @@ class WindowsHotkeyHandler(BaseHotkeyHandler):
 
 			def on_press(key): pass
 			def on_release(key):
-				if key == keyboard.Key.num_lock: 
-					print("HotkeyHandler stopped")
-					return False # Stop listener
+				pass
+				# if key == keyboard.Key.num_lock: 
+				# 	print("HotkeyHandler stopped")
+				# 	return False # Stop listener
 				
 			def win32_event_filter(msg, data):
 
