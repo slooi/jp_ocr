@@ -49,7 +49,9 @@ app.post("/", upload.single('image2'), asyncNextCaller(async (req, res) => {
 	if (!req.file) throw new Error("File was not uploaded in post!")
 
 	const googleLensOCR = new GoogleLensOCR({ DEBUG_MODE: true })
-	res.status(200).json(await googleLensOCR.call(req.file.buffer))
+	const ocrText = await googleLensOCR.call(req.file.buffer)
+	wsList.forEach(ws => ws.send(ocrText))
+	res.status(200).json(ocrText)
 }))
 const server = app.listen(PORT, () => { console.log("Listening on port " + PORT) })
 
@@ -72,8 +74,10 @@ app.use(async (error: Error, req: Request, res: Response, next: NextFunction) =>
 // ############################################################################
 
 // WEBSOCKET SERVER
+const wsList: ws[] = []
 const wsServer = new ws.Server({ server: server, path: "/websocket" })
 wsServer.on("connection", ws => {
+	wsList.push(ws)
 	console.log("CONNECTION!")
 	setTimeout(() => {
 		ws.send("hi. This is a message from server")
@@ -84,6 +88,11 @@ wsServer.on("connection", ws => {
 
 	ws.onmessage = (event) => {
 		console.log(event.data)
+	}
+	ws.onclose = event => {
+		const index = wsList.indexOf(ws)
+		if (index === -1) throw new Error("ERROR could not find ws instance in wsList")
+		wsList.splice(index, 1)
 	}
 })
 
