@@ -72,11 +72,14 @@ app.use(async (error: Error, req: Request, res: Response, next: NextFunction) =>
 // ############################################################################
 
 // WEBSOCKET SERVER
-const wsServer = new ws.Server({ server: server, path: "/" })
+const wsServer = new ws.Server({ server: server, path: "/websocket" })
 wsServer.on("connection", ws => {
 	console.log("CONNECTION!")
 	setTimeout(() => {
 		ws.send("hi. This is a message from server")
+	}, 1000)
+	setTimeout(() => {
+		ws.send("hi. This is a message from server 2")
 	}, 2000)
 
 	ws.onmessage = (event) => {

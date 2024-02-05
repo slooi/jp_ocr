@@ -9,7 +9,9 @@
 		<script>
 			// const ws = new WebSocket("ws://localhost:54321");
 
-			const ws = new WebSocket(location.origin.replace("http", "ws"));
+			const ws = new WebSocket(
+				location.origin.replace("http", "ws") + "/websocket"
+			);
 			ws.onopen = (event) => {
 				console.log("WEBSOCKET IS OPEN");
 			};
