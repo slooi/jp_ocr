@@ -10,6 +10,7 @@ export default defineConfig({
 				target: "ws://localhost:54321",
 				ws: true
 			},
-		}
+		},
+		host: "0.0.0.0"
 	}
 })
