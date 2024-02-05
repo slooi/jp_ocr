@@ -24,7 +24,7 @@ import keyboard
 from HotkeyHandler import Hotkey
 from PySide6.QtCore import QObject, Signal, Slot, SLOT
 
-from main import KnownError, post_image
+from main import KnownError, TwoPoints, calc_rectangular_shape, post_image
 
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 
@@ -152,12 +152,15 @@ class MouseHandler:
 
 	# PRIVATE METHODS
 	def mouse_positions_to_rect_shape(self):
+		return self.two_points_to_rect_shape(self.x_press,self.y_press,self.x_move,self.y_move)
+	
+	def two_points_to_rect_shape(self,x1:float,y1:float,x2:float,y2:float):
 		left, top, width, height = 0.0, 0.0, 0.0, 0.0
 
-		x_press = self.x_press
-		y_press = self.y_press
-		x_move = self.x_move
-		y_move = self.y_move
+		x_press = x1
+		y_press = y1
+		x_move = x2
+		y_move = y2
 
 		# Horizontal Calculations
 		if x_press < x_move:
@@ -205,6 +208,7 @@ class ScreenCapturer(QWidget):
 	show_signal = Signal()
 	hide_signal = Signal()
 	delete_signal = Signal()
+	capture_saved_region_signal = Signal()
 
 	def __init__(self,app:QApplication) -> None:
 		super().__init__()
@@ -246,6 +250,7 @@ class ScreenCapturer(QWidget):
 		self.show_signal.connect(self.show)
 		self.hide_signal.connect(self.hide)
 		self.delete_signal.connect(self.delete)
+		self.capture_saved_region_signal.connect(self.capture_region)
 
 
 	def add_screenshot(self):
@@ -283,17 +288,17 @@ class ScreenCapturer(QWidget):
 		pass
 
 	def mouse_move_event(self):
-		(left, top, width, height) = self.mouse_handler.mouse_positions_to_rect_shape()
+		rect_shape = (left, top, width, height) = self.mouse_handler.mouse_positions_to_rect_shape()
 		if width > 0 and height > 0:
 			# print(self.mouse_handler.mouse_positions_to_rect_shape())
 			self.cropped_pixmap = self.screenshot.copy(
-				*self.mouse_handler.mouse_positions_to_rect_shape()
+				*rect_shape
 			)
 			selection_area = QGraphicsPixmapItem(self.cropped_pixmap)
 			selection_area.setPos(left, top)
 
 			selection_area2 = ResizableRectItem(
-				*self.mouse_handler.mouse_positions_to_rect_shape()
+				*rect_shape
 			)
 
 			self.graphics_scene.removeItem(self.items[-1])
@@ -358,6 +363,25 @@ class ScreenCapturer(QWidget):
 		self.main_window.showFullScreen()
 		self.main_window.raise_()
 
+	def capture_region(self):
+		two_points:TwoPoints = TwoPoints(x1=0,y1=0,x2=1920,y2=1080)
+
+		# Get screenshot
+		screen = QApplication.primaryScreen()
+		screenshot = screen.grabWindow(0)
+
+		# Get cropped screenshot
+		cropped_pixmap = screenshot.copy(
+			*self.mouse_handler.two_points_to_rect_shape(two_points.x1,two_points.y1,two_points.x2,two_points.y2)
+		)
+
+		screenshot_bytes = convert_pixmap_to_bytes(cropped_pixmap)
+		print("POSTING")
+		
+		worker = NetworkRequestWorker("http://localhost:54321",screenshot_bytes)
+		self.thread_pool.start(worker)
+
+
 def convert_pixmap_to_bytes(pixmap:QPixmap):
 	buffer_array = QByteArray()
 
@@ -381,6 +405,7 @@ if __name__ == "__main__":
 		Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit),
 		Hotkey(modifiers=[],key=0x1B,callback=ocr_capture_app.hide_signal.emit),
 		Hotkey(modifiers=[91],key=0x90,callback=ocr_capture_app.delete_signal.emit),
+		Hotkey(modifiers=[91],key=0x5A,callback=ocr_capture_app.capture_saved_region_signal.emit),
 	])
 	thread_pool.start(hotkey_runnable)
 
@@ -388,7 +413,8 @@ if __name__ == "__main__":
 	
 	ocr_capture_app.run()
 
-""" 
+"""
+https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes 
 asd
 `
  """
