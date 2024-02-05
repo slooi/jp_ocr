@@ -1,8 +1,9 @@
 import path from "path"
 import { GoogleLensOCR } from "./services/ocr"
 import { ScreenCapturer } from "./services/ScreenCapturer"
-import express from "express"
+import express, { NextFunction, Request, Response } from "express"
 import multer from "multer"
+import { asyncNextCaller } from "./expressUtils"
 const PORT = 54321
 
 const upload = multer()
@@ -10,12 +11,26 @@ const app = express()
 app.use(express.json())
 // app.use(express.json({ limit: '50mb' }));
 // app.use(express.urlencoded({ limit: '50mb' }));
-app.get("/", (req, res) => {
+
+
+
+
+// Middleware for visibility
+app.use((req, res, next) => {
+	console.log("req.path req.method:", req.path, req.method);
+	console.log("req.body:", req.body)
+	next();
+});
+
+
+
+
+app.get("/", asyncNextCaller(async (req, res) => {
 	console.log("GoT IT!")
-	controllerScreenToOCR()
+	await controllerScreenToOCR()
 	res.status(200).end()
-})
-app.post("/", upload.single('image2'), async (req, res) => {
+}))
+app.post("/", upload.single('image2'), asyncNextCaller(async (req, res) => {
 	console.log("GoT IT! image")
 	if (!req.file) throw new Error("File was not uploaded in post!")
 
@@ -24,7 +39,7 @@ app.post("/", upload.single('image2'), async (req, res) => {
 	await googleLensOCR.call(req.file.buffer)
 
 	res.status(200).end()
-})
+}))
 app.listen(PORT, () => { console.log("Listening on port " + PORT) })
 
 async function controllerScreenToOCR() {
@@ -38,6 +53,15 @@ async function controllerScreenToOCR() {
 
 }
 
+
+app.use(async (error: Error, req: Request, res: Response, next: NextFunction) => {
+	console.log("############################### MIDDLEWARE ERROR ###############################################")
+	// Error.captureStackTrace() //???????????
+
+	const a = { error: error }
+	console.log(a)
+	res.status(500).json(a);
+})
 
 // setTimeout(() => { controllerScreenToOCR() }, 2000)
 
