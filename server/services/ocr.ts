@@ -65,7 +65,14 @@ export class GoogleLensOCR {
 			const codeBlockText = matchResult[0]
 			const frontFiltered = codeBlockText.substring(21 + 30)
 			const frontBackFiltered = frontFiltered.substring(0, frontFiltered.length - (11 + 18))
-			const lensResponseJSON = JSON.parse(frontBackFiltered)
+
+			let lensResponseJSON = {}
+			try {
+				lensResponseJSON = JSON.parse(frontBackFiltered)
+			} catch (err) {
+				throw new Error("ERROR: could not JSON.parse filtered response")
+			}
+
 
 
 			// If `errorHasStatus` field is `true`, then throw error
