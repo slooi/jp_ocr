@@ -1,33 +1,28 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from 'react';
 
-
-
-const ws = new WebSocket(location.origin.replace("http", "ws") + "/websocket")
-const data: string[] = []
-ws.onopen = (event) => {
-	console.log("WEBSOCKET IS OPEN")
-}
-ws.onmessage = (event) => {
-	data.push(event.data)
-	console.log("event", event)
-}
-setTimeout(() => { ws.send("FROM CLIENT MSG") }, 5000)
+const ws = new WebSocket(location.origin.replace("http", "ws") + "/websocket");
 
 function App() {
-	const [count, setCount] = useState(0)
+	const [textArray, setTextArray] = useState<string[]>([]);
 
-	// useEffect(() => {
-	// 	console.log("hi")
-	// }, [data])
+	ws.onopen = (event) => console.log("WEBSOCKET IS OPEN");
+	ws.onmessage = (event) => {
+		console.log("event", event);
+		setTextArray((prevTextArray) => [...prevTextArray, event.data]);
+	};
+	ws.onerror = (err) => console.log('error:', err)
+
+	useEffect(() => {
+		console.log("Notified! :D", textArray);
+	}, [textArray]);
 
 	return (
 		<>
-			<div>hi2asdasd asd</div><div>hi2asdasd asd</div><div>hi2asdasd asd</div><div>hi2asdasd asd</div><div>hi2asdasd asd</div>
+			{textArray.map(text => (
+				<p>{text}</p>
+			))}
 		</>
-	)
+	);
 }
 
-export default App
+export default App;
