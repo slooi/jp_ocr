@@ -54,11 +54,9 @@ def post_image(url: str, image_arg: pathlib.Path | bytes):
 	# Process response
 	try:
 		data = response.json()
-		print(data)
+		print("Response Data:\n{}".format(data))
 	except requests.exceptions.RequestException as e:
 		raise KnownError(e)
-		# print("ERROR: response.text")
-		# print(response.text)
 
 
 class RectangularShape(BaseModel):
