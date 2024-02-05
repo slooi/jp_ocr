@@ -27,8 +27,7 @@ app.use((req, res, next) => {
 
 app.get("/", asyncNextCaller(async (req, res) => {
 	console.log("GoT IT!")
-	await controllerScreenToOCR()
-	res.status(200).end()
+	res.status(200).json(await controllerScreenToOCR())
 }))
 app.post("/", upload.single('image2'), asyncNextCaller(async (req, res) => {
 	console.log("GoT IT! image")
@@ -36,21 +35,18 @@ app.post("/", upload.single('image2'), asyncNextCaller(async (req, res) => {
 
 
 	const googleLensOCR = new GoogleLensOCR({ DEBUG_MODE: true })
-	await googleLensOCR.call(req.file.buffer)
-
-	res.status(200).end()
+	res.status(200).json(await googleLensOCR.call(req.file.buffer))
 }))
 app.listen(PORT, () => { console.log("Listening on port " + PORT) })
 
-async function controllerScreenToOCR() {
+async function controllerScreenToOCR(): Promise<string> {
 	// Create ScreenCapturer
 	const screenCapturer = new ScreenCapturer({ DEBUG_MODE: true })
 	const buffer = await screenCapturer.captureArea({ x1: 0, y1: 1000, x2: 1920, y2: 1080 })
 
 	// Create GoogleLensOCR
 	const googleLensOCR = new GoogleLensOCR()
-	await googleLensOCR.call(buffer)
-
+	return await googleLensOCR.call(buffer)
 }
 
 
