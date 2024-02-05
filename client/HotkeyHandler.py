@@ -52,6 +52,8 @@ class WindowsHotkeyHandler(BaseHotkeyHandler):
 	# (160, 'shift'), (162, 'ctrl_l'), (91, 'cmd' THIS ALSO THE WIN KEY), (164, 'alt_l'), (165, 'alt_gr'), (161, 'shift_r'), (163, 'ctrl_r')
 	# self.MODIFIER_VKCS = (160, 162, 91, 164, 165, 161, 163)
 
+	MODIFIERS = (160,162,91,164,165,161,163)
+
 	KEY_DOWN = 256
 	KEY_UP = 257
 
@@ -104,9 +106,16 @@ class WindowsHotkeyHandler(BaseHotkeyHandler):
 							for modifier in hotkey.modifiers:
 								if modifier in self.keys_pressed and self.keys_pressed[modifier] == True:
 									num_of_modifiers_pressed += 1
+
+							# 1.3) Check EVERY modifier key. Ensure that only the relevant modifier keys are pressed. no more no less 
+							num_of_every_modifier_pressed = 0 
+							for modifier in self.MODIFIERS:
+								if modifier in self.keys_pressed and self.keys_pressed[modifier] == True:
+									num_of_every_modifier_pressed += 1
+
 						
 							# 1.3) If **ALL** the `Hotkey's modifiers` are currently being pressed, then SUPPRESS the normal key!
-							if num_of_modifiers_pressed == len(hotkey.modifiers):
+							if num_of_modifiers_pressed == len(hotkey.modifiers) and num_of_every_modifier_pressed == num_of_modifiers_pressed:
 								if listener: listener._suppress = True # Prevent OTHER PROGRAMS from sensing this key press
 								if self.DEBUG_MODE:
 									print("### SUPPRESSING KEY PRESS ###")
