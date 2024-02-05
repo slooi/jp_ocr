@@ -144,6 +144,8 @@ class WindowsHotkeyHandler(BaseHotkeyHandler):
 			l.join()
 
 """ 
+KEY CODE DOCUMENTATION FOR WINDOWS:
+https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 ### NOTES
 91 - left windows key
 192 - backtick(`)
