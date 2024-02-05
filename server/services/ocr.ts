@@ -18,7 +18,7 @@ export class GoogleLensOCR {
 		this.DEBUG_MODE = options?.DEBUG_MODE || false
 		this.timeLogger = new TimeLogger()
 	}
-	async call(imageArg: string | Buffer) {
+	async call(imageArg: string | Buffer): Promise<string> {
 		/* 
 			INPUTS:
 				string - path to image
@@ -82,7 +82,7 @@ export class GoogleLensOCR {
 
 			// Get content
 			const textLines = lensResponseJSON[3][4][0][0]
-			const ocrText = textLines.join("\n")
+			const ocrText = textLines.join("\n") as string
 			if (this.timeLogger) this.timeLogger.lap("PARSING TEXT  DONE")
 			console.log(ocrText)
 
