@@ -3,7 +3,7 @@ import { GoogleLensOCR } from "./services/ocr"
 import { ScreenCapturer } from "./services/ScreenCapturer"
 import express, { NextFunction, Request, Response } from "express"
 import multer from "multer"
-import { asyncNextCaller } from "./expressErrorsUtils"
+import { asyncNextCaller } from "./errorUtils"
 const PORT = 54321
 
 const upload = multer()
