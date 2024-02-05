@@ -7,7 +7,18 @@
 	</head>
 	<body>
 		<script>
-			const ws = new WebSocket("ws://localhost:54321");
+			// const ws = new WebSocket("ws://localhost:54321");
+
+			const ws = new WebSocket(location.origin.replace("http", "ws"));
+			ws.onopen = (event) => {
+				console.log("WEBSOCKET IS OPEN");
+			};
+			ws.onmessage = (event) => {
+				console.log("event", event);
+			};
+			setTimeout(() => {
+				ws.send("FROM CLIENT MSG");
+			}, 5000);
 		</script>
 	</body>
 </html>

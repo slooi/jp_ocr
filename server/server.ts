@@ -75,6 +75,9 @@ app.use(async (error: Error, req: Request, res: Response, next: NextFunction) =>
 const wsServer = new ws.Server({ server: server, path: "/" })
 wsServer.on("connection", ws => {
 	console.log("CONNECTION!")
+	setTimeout(() => {
+		ws.send("hi. This is a message from server")
+	}, 2000)
 
 	ws.onmessage = (event) => {
 		console.log(event.data)
