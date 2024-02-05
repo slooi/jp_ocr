@@ -34,10 +34,10 @@ class TwoPoints(BaseModel):
 def post_image(url: str, image_arg: pathlib.Path | bytes):
 	# Check input argument
 	if type(image_arg) == bytes:
-		print("image_arg is bytes")
+		# print("image_arg is bytes")
 		im_bytes = image_arg
 	else:
-		print("image_arg is path:", image_arg)
+		# print("image_arg is path:", image_arg)
 		with open(image_arg, "rb") as f:
 			im_bytes = f.read()
 
@@ -55,8 +55,10 @@ def post_image(url: str, image_arg: pathlib.Path | bytes):
 	try:
 		data = response.json()
 		print(data)
-	except requests.exceptions.RequestException:
-		print(response.text)
+	except requests.exceptions.RequestException as e:
+		raise KnownError(e)
+		# print("ERROR: response.text")
+		# print(response.text)
 
 
 class RectangularShape(BaseModel):
