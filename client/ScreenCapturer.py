@@ -1,6 +1,8 @@
+import signal
+import sys
 import time
 from typing import Callable, List
-from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool
+from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
 	QApplication,
@@ -319,9 +321,19 @@ class ScreenCapturer(QWidget):
 		self.main_window.hide()
 
 	def delete(self):
-		if self.graphics_view.hasFocus():
-			print("QUITING")
-			self.app.quit()
+		print("QUITING")
+		self.app.quit()
+		print("1QUITING")
+		self.app.exit(0)
+		print("2QUITING")
+		# signal.signal(signal.SIGINT, signal.SIG_DFL)
+		QApplication.instance().quit() # type: ignore
+		self.close()
+		print("QUITed")
+		
+		app = QCoreApplication(sys.argv)
+		app.exec_()
+		sys.exit(0)
 
 	def show(self):
 		print("showing!")
@@ -364,7 +376,12 @@ if __name__ == "__main__":
 
 
 	thread_pool = QThreadPool()
-	hotkey_runnable = HotkeyRunnable([Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit),Hotkey(modifiers=[],key=0x1B,callback=ocr_capture_app.hide_signal.emit)])
+	hotkey_runnable = HotkeyRunnable(
+	[
+		Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit),
+		Hotkey(modifiers=[],key=0x1B,callback=ocr_capture_app.hide_signal.emit),
+		Hotkey(modifiers=[91],key=0x90,callback=ocr_capture_app.delete_signal.emit),
+	])
 	thread_pool.start(hotkey_runnable)
 
 	print("Setup done!")
@@ -372,6 +389,6 @@ if __name__ == "__main__":
 	ocr_capture_app.run()
 
 """ 
-
+asd
 `
  """
