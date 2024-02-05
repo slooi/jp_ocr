@@ -359,16 +359,6 @@ class ScreenCapturer(QWidget):
 		self.main_window.showFullScreen()
 		self.main_window.raise_()
 
-		# self.main_window.showFullScreen()
-		# self.main_window.show()
-		# self.main_window.setFocus()
-		# self.main_window.showMaximized()
-		# self.main_window.activateWindow()
-		# self.main_window.setWindowState(Qt.WindowState.WindowMaximized)
-		# self.main_window.setWindowFlags(self.main_window.windowFlags() | Qt.Window)
-		# self.main_window.activateWindow()
-		# self.main_window.setWindowFlag(Qt.FramelessWindowHint, True)
-		
 def convert_pixmap_to_bytes(pixmap:QPixmap):
 	buffer_array = QByteArray()
 
@@ -387,7 +377,7 @@ if __name__ == "__main__":
 
 
 	thread_pool = QThreadPool()
-	hotkey_runnable = HotkeyRunnable([Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit)])
+	hotkey_runnable = HotkeyRunnable([Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit),Hotkey(modifiers=[],key=0x1B,callback=ocr_capture_app.hide_signal.emit)])
 	thread_pool.start(hotkey_runnable)
 
 	print("Setup done!")
