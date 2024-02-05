@@ -26,11 +26,11 @@ app.use((req, res, next) => {
 
 
 
-app.get("/", asyncNextCaller(async (req, res) => {
+app.get("/test", asyncNextCaller(async (req, res) => {
 	console.log("GoT IT!")
 	res.status(200).json(await controllerScreenToOCR())
 }))
-app.get("/websocket", asyncNextCaller(async (req, res) => {
+app.get("/", asyncNextCaller(async (req, res) => {
 	res.status(200).sendFile(path.join(__dirname, "index.html"))
 }))
 app.post("/", upload.single('image2'), asyncNextCaller(async (req, res) => {
