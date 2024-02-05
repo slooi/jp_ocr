@@ -26,6 +26,8 @@ from main import KnownError, post_image
 
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 
+import traceback
+
 class HotkeyRunnable(QRunnable):
 	def __init__(self,hotkeys:List[Hotkey]) -> None:
 		super().__init__()
@@ -75,7 +77,6 @@ class GraphicsScene(QGraphicsScene):
 	def mouseReleaseEvent(self, event):
 		if self.mouseReleaseEventCallback:
 			self.mouseReleaseEventCallback(event)
-		# print(event.scenePos().x(),event.scenePos().y())
 
 
 class GraphicsView(QGraphicsView):
@@ -185,20 +186,6 @@ class ResizableRectItem(QGraphicsRectItem):
 		return QRectF(0, 0, 1920, 1080)
 
 
-# class ScreenCapturerSignaller(QObject):
-# 	show = Signal()
-# 	hide = Signal()
-# 	delete = Signal()
-
-# 	def __init__(self):
-# 		super().__init__()
-# 		print("Set triggers!")
-# 		keyboard.add_hotkey("esc", self.hide.emit)
-# 		keyboard.add_hotkey("left windows+`", self.show.emit)
-# 		keyboard.add_hotkey("alt+z", self.show.emit)
-# 		keyboard.add_hotkey("ctrl+c", self.delete.emit)
-import traceback
-
 class NetworkRequestWorker(QRunnable):
 	def __init__(self,url,data):
 		super().__init__()
@@ -296,7 +283,7 @@ class ScreenCapturer(QWidget):
 	def mouse_move_event(self):
 		(left, top, width, height) = self.mouse_handler.mouse_positions_to_rect_shape()
 		if width > 0 and height > 0:
-			print(self.mouse_handler.mouse_positions_to_rect_shape())
+			# print(self.mouse_handler.mouse_positions_to_rect_shape())
 			self.cropped_pixmap = self.screenshot.copy(
 				*self.mouse_handler.mouse_positions_to_rect_shape()
 			)
