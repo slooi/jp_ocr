@@ -114,7 +114,7 @@ class WindowsHotkeyHandler(BaseHotkeyHandler):
 									num_of_every_modifier_pressed += 1
 
 						
-							# 1.3) If **ALL** the `Hotkey's modifiers` are currently being pressed, then SUPPRESS the normal key!
+							# 1.4) If **ALL** the `Hotkey's modifiers` are currently being presse   AND   no extras modifiers are being pressed  then SUPPRESS the normal key!
 							if num_of_modifiers_pressed == len(hotkey.modifiers) and num_of_every_modifier_pressed == num_of_modifiers_pressed:
 								if listener: listener._suppress = True # Prevent OTHER PROGRAMS from sensing this key press
 								if self.DEBUG_MODE:
