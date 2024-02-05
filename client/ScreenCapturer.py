@@ -250,20 +250,7 @@ class ScreenCapturer(QWidget):
 		#############################
 		# ADD THREAD AND SIGNALLER
 		self.thread_pool = QThreadPool()
-		####
-		
-		# self._thread = QThread(self.main_window)
 
-		# self.signaller_worker = ScreenCapturerSignaller()
-		# self.signaller_worker.moveToThread(self._thread)
-
-		# self.signaller_worker.hide.connect(self.hide)
-		# self.signaller_worker.show.connect(self.show)
-		# self.signaller_worker.delete.connect(self.delete)
-		# print("everything is connected")
-
-		#############################
-		# ADD THREAD AND SIGNALLER
 		self.show_signal.connect(self.show)
 		self.hide_signal.connect(self.hide)
 		self.delete_signal.connect(self.delete)
