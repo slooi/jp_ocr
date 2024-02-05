@@ -22,7 +22,7 @@ import keyboard
 from HotkeyHandler import Hotkey
 from PySide6.QtCore import QObject, Signal, Slot, SLOT
 
-from main import post_image
+from main import KnownError, post_image
 
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 
@@ -197,7 +197,7 @@ class ResizableRectItem(QGraphicsRectItem):
 # 		keyboard.add_hotkey("left windows+`", self.show.emit)
 # 		keyboard.add_hotkey("alt+z", self.show.emit)
 # 		keyboard.add_hotkey("ctrl+c", self.delete.emit)
-
+import traceback
 
 class NetworkRequestWorker(QRunnable):
 	def __init__(self,url,data):
@@ -206,8 +206,11 @@ class NetworkRequestWorker(QRunnable):
 		self.data = data
 
 	def run(self):
-		post_image(self.url, self.data)
-
+		try:
+			post_image(self.url, self.data)
+		except KnownError:
+			traceback.print_exc()
+			print("Error has happened")
 
 class ScreenCapturer(QWidget):
 	show_signal = Signal()
