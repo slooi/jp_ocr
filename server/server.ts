@@ -6,15 +6,25 @@ import multer from "multer"
 import { asyncNextCaller } from "./errorUtils"
 import ws from "ws"
 
+
+
+// ############################################################################
+// 								CONSTANTS
+// ############################################################################
+
 const PORT = 54321
 
 const upload = multer()
 const app = express()
+
+// ############################################################################
+// 								HTTP MIDDLEWARE
+// ############################################################################
+
+// 
 app.use(express.json())
 // app.use(express.json({ limit: '50mb' }));
 // app.use(express.urlencoded({ limit: '50mb' }));
-
-
 
 // Middleware for visibility
 app.use((req, res, next) => {
@@ -23,8 +33,9 @@ app.use((req, res, next) => {
 	next();
 });
 
-
-
+// ############################################################################
+// 								HTTP ROUTES
+// ############################################################################
 
 app.get("/test", asyncNextCaller(async (req, res) => {
 	console.log("GoT IT!")
@@ -42,6 +53,24 @@ app.post("/", upload.single('image2'), asyncNextCaller(async (req, res) => {
 }))
 const server = app.listen(PORT, () => { console.log("Listening on port " + PORT) })
 
+
+// ############################################################################
+// 								HTTP ERROR HANDLER
+// ############################################################################
+
+app.use(async (error: Error, req: Request, res: Response, next: NextFunction) => {
+	console.log("############################### MIDDLEWARE ERROR ###############################################")
+	// Error.captureStackTrace() //???????????
+
+	const a = { error: error }
+	console.log(a)
+	res.status(500).json(a);
+})
+
+// ############################################################################
+// 								WEBSOCKETS
+// ############################################################################
+
 // WEBSOCKET SERVER
 const wsServer = new ws.Server({ server: server, path: "/" })
 wsServer.on("connection", ws => {
@@ -52,6 +81,9 @@ wsServer.on("connection", ws => {
 	}
 })
 
+// ############################################################################
+// 								HELPER FUNCTIONS
+// ############################################################################
 async function controllerScreenToOCR(): Promise<string> {
 	// Create ScreenCapturer
 	const screenCapturer = new ScreenCapturer({ DEBUG_MODE: true })
@@ -62,15 +94,11 @@ async function controllerScreenToOCR(): Promise<string> {
 	return await googleLensOCR.call(buffer)
 }
 
+// ############################################################################
+// ############################################################################
+// ############################################################################
 
-app.use(async (error: Error, req: Request, res: Response, next: NextFunction) => {
-	console.log("############################### MIDDLEWARE ERROR ###############################################")
-	// Error.captureStackTrace() //???????????
 
-	const a = { error: error }
-	console.log(a)
-	res.status(500).json(a);
-})
 
 // setTimeout(() => { controllerScreenToOCR() }, 2000)
 
