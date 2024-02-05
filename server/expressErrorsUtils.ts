@@ -8,3 +8,10 @@ export const asyncNextCaller = <T extends (req: Request, res: Response, next: Ne
 		return Promise.resolve(fnReturn).catch(next)
 	}
 )
+
+
+export class KnownError extends Error {
+	constructor(message: string | undefined) {
+		super(message)
+	}
+}
