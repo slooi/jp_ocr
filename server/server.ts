@@ -80,11 +80,8 @@ wsServer.on("connection", ws => {
 	wsList.push(ws)
 	console.log("CONNECTION!")
 	setTimeout(() => {
-		ws.send("hi. This is a message from server")
+		ws.send("websocket connection established")
 	}, 1000)
-	setTimeout(() => {
-		ws.send("hi. This is a message from server 2")
-	}, 2000)
 
 	ws.onmessage = (event) => {
 		console.log(event.data)
