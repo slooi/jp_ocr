@@ -319,19 +319,15 @@ class ScreenCapturer(QWidget):
 		self.main_window.hide()
 
 	def delete(self):
-		print("QUITING")
 		self.app.quit()
-		print("1QUITING")
 		self.app.exit(0)
-		print("2QUITING")
 		# signal.signal(signal.SIGINT, signal.SIG_DFL)
 		QApplication.instance().quit() # type: ignore
 		self.close()
-		print("QUITed")
 		
-		app = QCoreApplication(sys.argv)
-		app.exec_()
-		sys.exit(0)
+		# app = QCoreApplication(sys.argv)
+		# app.exec_()
+		# sys.exit(0)
 
 	def show(self):
 		print("showing!")
