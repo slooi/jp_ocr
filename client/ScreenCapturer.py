@@ -1,7 +1,7 @@
 import signal
 import sys
 import time
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Tuple
 from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
@@ -62,8 +62,29 @@ class GraphicsScene(QGraphicsScene):
 		# Set Size
 		self.setSceneRect(0, 0, 1920, 1080)
 
-	def add_item(self, item: QGraphicsPixmapItem):
-		self.addItem(item)
+		# Container for items
+		self.items_list = []
+
+
+	# PUBLIC METHODS
+	def add_items(self,*items:QGraphicsItem):
+		for item in items:
+			self.addItem(item)
+			self.items_list.append(item)
+
+	def clear_items(self):
+		self.clear()
+		self.items_list = []
+
+	def remove_items(self,*items:QGraphicsItem):
+		for item in items:
+			try:
+				self.removeItem(item)
+				self.items_list.remove(item)
+			except:
+				# traceback.print_exc()
+				print("Can't remove items! They probably don't exist anymore")
+
 
 	# SUBSCRIPTION
 	def add_mouse_callbacks(
@@ -173,10 +194,11 @@ class MouseHandler:
 		self.mouseReleaseEventCallback()
 
 	# PRIVATE METHODS
-	def mouse_positions_to_rect_shape(self):
+	def get_mouse_positions_in_rect_shape(self):
 		return self.two_points_to_rect_shape(self.x_press,self.y_press,self.x_move,self.y_move)
 	
-	def two_points_to_rect_shape(self,x1:float,y1:float,x2:float,y2:float):
+	@staticmethod
+	def two_points_to_rect_shape(x1:float,y1:float,x2:float,y2:float) -> Tuple[int,int,int,int]:
 		left, top, width, height = 0.0, 0.0, 0.0, 0.0
 
 		x_press = x1
@@ -200,7 +222,7 @@ class MouseHandler:
 			top = y_move
 			height = y_press - y_move
 
-		return [left, top, round(width), round(height)]
+		return (round(left), round(top), round(width), round(height))
 
 
 #########################################################################################
@@ -208,10 +230,13 @@ class MouseHandler:
 #########################################################################################
 
 class ResizableRectItem(QGraphicsRectItem):
-	def __init__(self, x, y, width, height):
+	def __init__(self, x, y, width, height,graphics_scene:GraphicsScene):
 		super().__init__(x, y, width, height)
 		self.setPen(QPen(QColor("red"), 1))
 		self.setBrush(QColor(0, 0, 0, 0))
+
+		self.graphics_scene = graphics_scene
+		self.graphics_scene.add_items(self)
 
 	def boundingRect(self):
 		return QRectF(0, 0, 1920, 1080)
@@ -234,6 +259,50 @@ class NetworkRequestWorker(QRunnable):
 #########################################################################################
 #########################################################################################
 
+class HighlightedAreaItemManager():
+	def __init__(self,x1,y1,x2,y2,full_screenshot:QPixmap,graphics_scene:GraphicsScene):
+		self.graphics_scene = graphics_scene
+		self.full_screenshot = full_screenshot
+		self.highlighted_cropped_screenshot:None|QGraphicsPixmapItem = None
+		self.cropped_screenshot:None|QPixmap = None
+
+		# Get coordinates
+		rect_shape  = MouseHandler.two_points_to_rect_shape(x1,y1,x2,y2)
+
+		# Create highlighted area
+		self.create_highlighted_area(*rect_shape)
+
+	def create_highlighted_area(self,left:float,top:float,width:float,height:float):
+		if width > 0 and height > 0:
+			self.cropped_screenshot = self.full_screenshot.copy(*(int(left),int(top),int(width),int(height)))
+		else:
+			self.cropped_screenshot = self.full_screenshot.copy(*(0,0,1,1))
+
+		self.highlighted_cropped_screenshot = QGraphicsPixmapItem(self.cropped_screenshot)
+		self.highlighted_cropped_screenshot.setPos(left, top)
+		self.graphics_scene.add_items(self.highlighted_cropped_screenshot)
+		# Rectangle
+		self.rectangle = ResizableRectItem(left,top,width,height,self.graphics_scene)
+
+
+	def update(self,x1:float,y1:float,x2:float,y2:float):
+		# Get coordinates
+		rect_shape = MouseHandler.two_points_to_rect_shape(x1,y1,x2,y2)
+
+		# Remove old
+		if self.highlighted_cropped_screenshot: self.graphics_scene.remove_items(self.highlighted_cropped_screenshot)
+		self.graphics_scene.remove_items(self.rectangle)
+
+		# Create highlighted area
+		self.create_highlighted_area(*rect_shape)
+
+	def get_cropped_screenshot(self):
+		if isinstance(self.cropped_screenshot,QPixmap): 
+			return self.cropped_screenshot
+		else:
+			raise Exception("ERROR: self.cropped_screenshot doesn't exist yet!")
+
+
 class ScreenCapturerApp(QWidget):
 	def __init__(self,app:QApplication) -> None:
 		super().__init__()
@@ -246,9 +315,6 @@ class ScreenCapturerApp(QWidget):
 		self.mouse_handler = MouseHandler(self.graphics_scene, self.mouse_press_event, self.mouse_move_event, self.mouse_release_event)
 		# Create VIEW from SCENE
 		self.graphics_view = GraphicsView(self.graphics_scene)
-
-		# SETUP
-		self.items: List[QGraphicsItem] = []
 
 		# Create main window
 		self.main_window = MainWindow()
@@ -271,66 +337,15 @@ class ScreenCapturerApp(QWidget):
 		
 		self.screenCapturer = ScreenCapturerPyside()
 
-
-	def add_screenshot(self):
-		# Get screenshot
-		screen = QApplication.primaryScreen()
-		self.screenshot = screen.grabWindow(0)
-
-		# Load & Display Image
-		image_item = QGraphicsPixmapItem(self.screenshot)
-		image_item.setOpacity(0.88)
-		# image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
-
-		self.graphics_scene.addItem(image_item)
-		self.items.append(image_item)
-
-	def add_selection_area(self):
-		if not self.screenshot:
-			raise Exception("self.screenshot must be assigned first!")
-
-		# 1) Crop screenshot
-		self.cropped_pixmap = self.screenshot.copy(0, 0, 1, 1)
-		# 1.1) Create a QGraphicsPixmapItem with the cropped image
-		selection_screenshot = QGraphicsPixmapItem(self.cropped_pixmap)
-
-		# 2) Create selection rect
-		selection_rect = ResizableRectItem(0, 0, 1920-1, 1080-1)
-
-		# Add the item to the scene``
-		self.graphics_scene.addItem(selection_screenshot)
-		self.graphics_scene.addItem(selection_rect)
-		self.items.append(selection_screenshot)
-		self.items.append(selection_rect)
-
 	def mouse_press_event(self):
 		pass
 
 	def mouse_move_event(self):
-		rect_shape = (left, top, width, height) = self.mouse_handler.mouse_positions_to_rect_shape()
-		if width > 0 and height > 0:
-			# print(self.mouse_handler.mouse_positions_to_rect_shape())
-			self.cropped_pixmap = self.screenshot.copy(
-				*rect_shape
-			)
-			selection_area = QGraphicsPixmapItem(self.cropped_pixmap)
-			selection_area.setPos(left, top)
-
-			selection_area2 = ResizableRectItem(
-				*rect_shape
-			)
-
-			self.graphics_scene.removeItem(self.items[-1])
-			self.graphics_scene.removeItem(self.items[-2])
-			self.items.pop()
-			self.items.pop()
-			self.items.append(selection_area)
-			self.items.append(selection_area2)
-			self.graphics_scene.addItem(selection_area)
-			self.graphics_scene.addItem(selection_area2)
+		if not self.highlightedAreaItemManager: raise Exception("ERROR: self.highlightedAreaItemManager DOES NOT EXIST!")
+		self.highlightedAreaItemManager.update(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
 	def mouse_release_event(self):
-		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.cropped_pixmap)
+		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.highlightedAreaItemManager.get_cropped_screenshot())
 		print("POSTING")
 		
 		worker = NetworkRequestWorker("http://localhost:54321",captured_region)
@@ -350,29 +365,28 @@ class ScreenCapturerApp(QWidget):
 		# signal.signal(signal.SIGINT, signal.SIG_DFL)
 		QApplication.instance().quit() # type: ignore
 		self.close()
-		
-		# app = QCoreApplication(sys.argv)
-		# app.exec_()
-		# sys.exit(0)
 
+		
 	def show(self):
 		print("showing!")
 		
-		# Remove any items from previous region selection session
-		for item in self.items:
-			self.graphics_scene.removeItem(item)
-		self.items = []
+		# 1) Remove any items from render
+		self.graphics_scene.clear_items()
 
-		# Add screenshot
-		self.add_screenshot()
+		# 2) Take screenshot
+		screenshot = self.screenCapturer.capture_region()
 		
-		# Add window border
-		window_border = ResizableRectItem(0, 0, 1920-1, 1080-1)
-		self.graphics_scene.addItem(window_border)
-		self.items.append(window_border)
+		######################## graphics items ############################
+		# 3) Display low opacity screenshot graphics item
+		image_item = QGraphicsPixmapItem(screenshot)
+		image_item.setOpacity(0.88)
+		self.graphics_scene.add_items(image_item)
+	
+		# 4) Create border graphics item
+		ResizableRectItem(0, 0, 1920-1, 1080-1,self.graphics_scene)
 
-		# Add selection are
-		self.add_selection_area()
+		# 5) Create bordered graphics item
+		self.highlightedAreaItemManager = HighlightedAreaItemManager(0,0,0,0,screenshot,self.graphics_scene)
 
 		# DISPLAY
 		self.main_window.showFullScreen()
@@ -397,7 +411,7 @@ class ScreenCapturerApp(QWidget):
 		self.thread_pool.start(worker)
 
 #########################################################################################
-#########################################################################################
+#								SCREEN CAPTURER
 #########################################################################################
 
 class ScreenCapturerBase(ABC):
@@ -410,27 +424,13 @@ class ScreenCapturerPyside(QObject):
 	def __init__(self) -> None:
 		super().__init__()
 
-		self.latest_screenshot:None|QPixmap = None
-
-	def get_latest_screenshot(self) -> QPixmap:
-		if isinstance(self.latest_screenshot,QPixmap):
-			return self.latest_screenshot
-		else:
-			raise Exception("ERROR: screenshot does not exist yet!")	
-
 	def capture_region(self):
 		# Get screenshot
 		screen = QApplication.primaryScreen()
 		screenshot = screen.grabWindow(0)
 
-		# Load & Display Image
-		image_item = QGraphicsPixmapItem(screenshot)
-		image_item.setOpacity(0.88)
-		##### image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
-
-		# self.graphics_scene.addItem(image_item)
-		# self.items.append(image_item)
-		
+		return screenshot
+	
 	def convert_pixmap_to_bytes(self,pixmap:QPixmap):
 		buffer_array = QByteArray()
 
@@ -482,6 +482,6 @@ if __name__ == "__main__":
 
 """
 https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes 
-asd
-`
+asd`
+``
  """
