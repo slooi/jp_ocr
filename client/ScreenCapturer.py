@@ -30,7 +30,7 @@ from main import KnownError, TwoPoints, post_image
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 from abc import ABC, abstractmethod
 import traceback
-
+import pyperclip
 #########################################################################################
 #########################################################################################
 #########################################################################################
@@ -243,14 +243,17 @@ class ResizableRectItem(QGraphicsRectItem):
 
 
 class NetworkRequestWorker(QRunnable):
-	def __init__(self,url,data):
+	def __init__(self,url,data,callback:Callable[...,Any]|None = None): # type: ignore
 		super().__init__()
 		self.url = url
 		self.data = data
+		self.callback = callback
 
 	def run(self):
 		try:
-			post_image(self.url, self.data)
+			result = post_image(self.url, self.data)
+			if self.callback:
+				self.callback(result)
 		except KnownError:
 			traceback.print_exc()
 			print("Error has happened")
@@ -348,7 +351,7 @@ class ScreenCapturerApp(QWidget):
 		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.highlightedAreaItemManager.get_cropped_screenshot())
 		print("POSTING")
 		
-		worker = NetworkRequestWorker("http://localhost:54321",captured_region)
+		worker = NetworkRequestWorker("http://localhost:54321",captured_region,lambda x:pyperclip.copy(x))
 		self.thread_pool.start(worker)
 
 		self.hide()
