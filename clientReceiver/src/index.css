@@ -5,10 +5,24 @@ body,
 * {
 	margin: 0;
 	padding: 0;
+	min-height: 100%;
+	box-sizing: border-box;
 }
 
 * {
+	--bg-color: rgb(219, 219, 219);
+	--bg-color2: rgb(182, 182, 182);
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
+	background-color: var(--bg-color);
+	color: black;
+}
+
+#content {
+	margin: 0.5rem;
+}
+footer {
+	height: 50vh;
+	background-color: var(--bg-color2);
 }

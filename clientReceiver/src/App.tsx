@@ -18,9 +18,12 @@ function App() {
 
 	return (
 		<>
-			{textArray.map(text => (
-				<p>{text}</p>
-			))}
+			<div id="content">
+				{textArray.map(text => (
+					<p>{text}</p>
+				))}
+			</div>
+			<footer></footer>
 		</>
 	);
 }
