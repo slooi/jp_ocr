@@ -61,6 +61,7 @@ def post_image(url: str, image_arg: pathlib.Path | bytes):
 	try:
 		data = response.json()
 		print("### Response Data: ###\n{}".format(data))
+		return data
 	except requests.exceptions.RequestException as e:
 		raise KnownError(e)
 
