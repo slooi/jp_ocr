@@ -25,12 +25,12 @@ from pydantic import BaseModel
 from HotkeyHandler import Hotkey
 from PySide6.QtCore import QObject, Signal, Slot, SLOT
 
-from main import KnownError, TwoPoints, post_image
+from main import KnownError, TwoPoints, NetworkHandler
 
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 from abc import ABC, abstractmethod
 import traceback
-import pyperclip
+import pyperclip # type: ignore
 #########################################################################################
 #########################################################################################
 #########################################################################################
@@ -251,12 +251,16 @@ class NetworkRequestWorker(QRunnable):
 
 	def run(self):
 		try:
-			result = post_image(self.url, self.data)
+			result = NetworkHandler.post_image(self.url, self.data)
 			if self.callback:
 				self.callback(result)
 		except KnownError:
 			traceback.print_exc()
-			print("Error has happened")
+			print("KnownError Error has happened")
+		except pyperclip.PyperclipException:
+			traceback.print_exc()
+			print("PyperclipException Error has happened")
+
 
 #########################################################################################
 #########################################################################################
