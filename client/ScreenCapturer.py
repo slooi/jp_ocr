@@ -28,9 +28,12 @@ from PySide6.QtCore import QObject, Signal, Slot, SLOT
 from main import KnownError, TwoPoints, post_image
 
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
-
+from abc import ABC, abstractmethod
 import traceback
 
+#########################################################################################
+#########################################################################################
+#########################################################################################
 class HotkeyRunnable(QRunnable):
 	def __init__(self,hotkeys:List[Hotkey]) -> None:
 		super().__init__()
@@ -39,6 +42,9 @@ class HotkeyRunnable(QRunnable):
 	def run(self):
 		WindowsHotkeyHandler(self.hotkeys)
 
+#########################################################################################
+#########################################################################################
+#########################################################################################
 class GraphicsScene(QGraphicsScene):
 	def __init__(
 		self,
@@ -82,6 +88,9 @@ class GraphicsScene(QGraphicsScene):
 			self.mouseReleaseEventCallback(event)
 
 
+#########################################################################################
+#########################################################################################
+#########################################################################################
 class GraphicsView(QGraphicsView):
 	def __init__(self, graphics_scene: GraphicsScene):
 		super().__init__(graphics_scene)
@@ -99,6 +108,9 @@ class GraphicsView(QGraphicsView):
 		"""
 		)
 
+#########################################################################################
+#########################################################################################
+#########################################################################################
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
@@ -187,6 +199,9 @@ class MouseHandler:
 		return [left, top, round(width), round(height)]
 
 
+#########################################################################################
+#########################################################################################
+#########################################################################################
 class ResizableRectItem(QGraphicsRectItem):
 	def __init__(self, x, y, width, height):
 		super().__init__(x, y, width, height)
@@ -210,7 +225,10 @@ class NetworkRequestWorker(QRunnable):
 			traceback.print_exc()
 			print("Error has happened")
 
-class ScreenCapturer(QWidget):
+#########################################################################################
+#########################################################################################
+#########################################################################################
+class ScreenCapturerApp(QWidget):
 	def __init__(self,app:QApplication) -> None:
 		super().__init__()
 
@@ -370,6 +388,22 @@ class ScreenCapturer(QWidget):
 		worker = NetworkRequestWorker("http://localhost:54321",screenshot_bytes)
 		self.thread_pool.start(worker)
 
+#########################################################################################
+#########################################################################################
+#########################################################################################
+class ScreenCapturerBase(ABC):
+	@abstractmethod
+	def capture_region(self):
+		pass
+
+
+class ScreenCapturerPyside(QObject,ScreenCapturerBase):
+	pass
+	
+
+#########################################################################################
+#########################################################################################
+#########################################################################################
 
 def convert_pixmap_to_bytes(pixmap:QPixmap):
 	buffer_array = QByteArray()
@@ -394,7 +428,7 @@ class SignalHandler(QObject):
 
 if __name__ == "__main__":
 	app = QApplication([])
-	ocr_capture_app = ScreenCapturer(app)
+	ocr_capture_app = ScreenCapturerApp(app)
 
 	signal_handler = SignalHandler()
 
