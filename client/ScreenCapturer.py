@@ -1,7 +1,7 @@
 import signal
 import sys
 import time
-from typing import Callable, List
+from typing import Any, Callable, List
 from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
@@ -208,7 +208,7 @@ class ScreenCapturer(QWidget):
 	show_signal = Signal()
 	hide_signal = Signal()
 	delete_signal = Signal()
-	capture_saved_region_signal = Signal()
+	capture_saved_region_signal = Signal(TwoPoints)
 
 	def __init__(self,app:QApplication) -> None:
 		super().__init__()
@@ -363,8 +363,8 @@ class ScreenCapturer(QWidget):
 		self.main_window.showFullScreen()
 		self.main_window.raise_()
 
-	def capture_region(self):
-		two_points:TwoPoints = TwoPoints(x1=0,y1=0,x2=1920,y2=1080)
+	def capture_region(self,two_points:TwoPoints):
+		print("OBJECT OBJECT",two_points)
 
 		# Get screenshot
 		screen = QApplication.primaryScreen()
@@ -405,7 +405,7 @@ if __name__ == "__main__":
 		Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit),
 		Hotkey(modifiers=[],key=0x1B,callback=ocr_capture_app.hide_signal.emit),
 		Hotkey(modifiers=[91],key=0x90,callback=ocr_capture_app.delete_signal.emit),
-		Hotkey(modifiers=[91],key=0x5A,callback=ocr_capture_app.capture_saved_region_signal.emit),
+		Hotkey(modifiers=[91],key=0x5A,callback=lambda:ocr_capture_app.capture_saved_region_signal.emit(TwoPoints(x1=0,y1=0,x2=1920,y2=1080))),
 	])
 	thread_pool.start(hotkey_runnable)
 
