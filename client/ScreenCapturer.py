@@ -34,6 +34,7 @@ import traceback
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
 class HotkeyRunnable(QRunnable):
 	def __init__(self,hotkeys:List[Hotkey]) -> None:
 		super().__init__()
@@ -45,6 +46,7 @@ class HotkeyRunnable(QRunnable):
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
 class GraphicsScene(QGraphicsScene):
 	def __init__(
 		self,
@@ -91,6 +93,7 @@ class GraphicsScene(QGraphicsScene):
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
 class GraphicsView(QGraphicsView):
 	def __init__(self, graphics_scene: GraphicsScene):
 		super().__init__(graphics_scene)
@@ -111,6 +114,7 @@ class GraphicsView(QGraphicsView):
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
@@ -202,6 +206,7 @@ class MouseHandler:
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
 class ResizableRectItem(QGraphicsRectItem):
 	def __init__(self, x, y, width, height):
 		super().__init__(x, y, width, height)
@@ -228,6 +233,7 @@ class NetworkRequestWorker(QRunnable):
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
 class ScreenCapturerApp(QWidget):
 	def __init__(self,app:QApplication) -> None:
 		super().__init__()
@@ -262,6 +268,8 @@ class ScreenCapturerApp(QWidget):
 		#############################
 		# ADD THREAD AND SIGNALLER
 		self.thread_pool = QThreadPool()
+		
+		self.screenCapturer = ScreenCapturerPyside()
 
 
 	def add_screenshot(self):
@@ -322,7 +330,7 @@ class ScreenCapturerApp(QWidget):
 			self.graphics_scene.addItem(selection_area2)
 
 	def mouse_release_event(self):
-		captured_region = convert_pixmap_to_bytes(self.cropped_pixmap)
+		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.cropped_pixmap)
 		print("POSTING")
 		
 		worker = NetworkRequestWorker("http://localhost:54321",captured_region)
@@ -382,7 +390,7 @@ class ScreenCapturerApp(QWidget):
 			*self.mouse_handler.two_points_to_rect_shape(two_points.x1,two_points.y1,two_points.x2,two_points.y2)
 		)
 
-		screenshot_bytes = convert_pixmap_to_bytes(cropped_pixmap)
+		screenshot_bytes = self.screenCapturer.convert_pixmap_to_bytes(cropped_pixmap)
 		print("POSTING")
 		
 		worker = NetworkRequestWorker("http://localhost:54321",screenshot_bytes)
@@ -391,31 +399,53 @@ class ScreenCapturerApp(QWidget):
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
 class ScreenCapturerBase(ABC):
 	@abstractmethod
 	def capture_region(self):
 		pass
 
 
-class ScreenCapturerPyside(QObject,ScreenCapturerBase):
-	pass
+class ScreenCapturerPyside(QObject):
+	def __init__(self) -> None:
+		super().__init__()
+
+		self.latest_screenshot:None|QPixmap = None
+
+	def get_latest_screenshot(self) -> QPixmap:
+		if isinstance(self.latest_screenshot,QPixmap):
+			return self.latest_screenshot
+		else:
+			raise Exception("ERROR: screenshot does not exist yet!")	
+
+	def capture_region(self):
+		# Get screenshot
+		screen = QApplication.primaryScreen()
+		screenshot = screen.grabWindow(0)
+
+		# Load & Display Image
+		image_item = QGraphicsPixmapItem(screenshot)
+		image_item.setOpacity(0.88)
+		##### image_item = QGraphicsPixmapItem(QPixmap("client/test2.png"))
+
+		# self.graphics_scene.addItem(image_item)
+		# self.items.append(image_item)
+		
+	def convert_pixmap_to_bytes(self,pixmap:QPixmap):
+		buffer_array = QByteArray()
+
+		buffer = QBuffer(buffer_array)
+		buffer.open (QIODevice.OpenModeFlag.WriteOnly)
+
+		ok = pixmap.save(buffer,"JPG")
+		assert ok
+
+		pixmap_bytes = buffer_array.data()
+		return pixmap_bytes
 	
-
 #########################################################################################
 #########################################################################################
 #########################################################################################
-
-def convert_pixmap_to_bytes(pixmap:QPixmap):
-	buffer_array = QByteArray()
-
-	buffer = QBuffer(buffer_array)
-	buffer.open (QIODevice.OpenModeFlag.WriteOnly)
-
-	ok = pixmap.save(buffer,"JPG")
-	assert ok
-
-	pixmap_bytes = buffer_array.data()
-	return pixmap_bytes
 
 class SignalHandler(QObject):
 	signal = Signal(object)
@@ -426,10 +456,10 @@ class SignalHandler(QObject):
 	def signal_handler(self,callback:Callable[...,None]):	# type: ignore
 		callback()
 
+#########################################################################################
+#########################################################################################
+#########################################################################################
 
-#########################################################################################
-#########################################################################################
-#########################################################################################
 if __name__ == "__main__":
 	app = QApplication([])
 	ocr_capture_app = ScreenCapturerApp(app)
