@@ -30,6 +30,12 @@ class TwoPoints(BaseModel):
 	x2: int
 	y2: int
 
+class RectangularShape(BaseModel):
+	top: int
+	left: int
+	width: int
+	height: int
+
 
 def post_image(url: str, image_arg: pathlib.Path | bytes):
 	# Check input argument
@@ -58,12 +64,6 @@ def post_image(url: str, image_arg: pathlib.Path | bytes):
 	except requests.exceptions.RequestException as e:
 		raise KnownError(e)
 
-
-class RectangularShape(BaseModel):
-	top: int
-	left: int
-	width: int
-	height: int
 
 
 def calc_rectangular_shape(two_points: TwoPoints) -> RectangularShape:

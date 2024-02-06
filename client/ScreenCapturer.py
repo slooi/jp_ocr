@@ -24,7 +24,7 @@ import keyboard
 from HotkeyHandler import Hotkey
 from PySide6.QtCore import QObject, Signal, Slot, SLOT
 
-from main import KnownError, TwoPoints, calc_rectangular_shape, post_image
+from main import KnownError, TwoPoints, post_image
 
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 
