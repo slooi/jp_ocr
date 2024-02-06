@@ -64,9 +64,8 @@ app.use(async (error: Error, req: Request, res: Response, next: NextFunction) =>
 	console.log("############################### MIDDLEWARE ERROR ###############################################")
 	// Error.captureStackTrace() //???????????
 
-	const a = { error: error }
-	console.log(a)
-	res.status(500).json(a);
+	console.log(error)
+	res.status(500).json({ error: error.message });
 })
 
 // ############################################################################
