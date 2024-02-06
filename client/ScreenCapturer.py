@@ -109,7 +109,10 @@ class MainWindow(QMainWindow):
 
 
 class MouseHandler:
-	def __init__(self, graphics_scene: GraphicsScene) -> None:
+	def __init__(self, graphics_scene: GraphicsScene,
+		mousePressEventCallback: Callable[[], None],
+		mouseMoveEventCallback: Callable[[], None],
+		mouseReleaseEventCallback: Callable[[], None]) -> None:
 		graphics_scene.add_mouse_callbacks(
 			self.mouse_press_event, self.mouse_move_event, self.mouse_release_event
 		)
@@ -120,6 +123,8 @@ class MouseHandler:
 		self.y_move = 0.0
 		self.x_release = 0.0
 		self.y_release = 0.0
+
+		self.add_mouse_callbacks(mousePressEventCallback,mouseMoveEventCallback,mouseReleaseEventCallback)
 
 	# SUBSCRIPTION
 	def add_mouse_callbacks(
@@ -214,10 +219,7 @@ class ScreenCapturer(QWidget):
 
 		# Create graphics SCENE
 		self.graphics_scene = GraphicsScene()
-		self.mouse_handler = MouseHandler(self.graphics_scene)
-		self.mouse_handler.add_mouse_callbacks(
-			self.mouse_press_event, self.mouse_move_event, self.mouse_release_event
-		)
+		self.mouse_handler = MouseHandler(self.graphics_scene, self.mouse_press_event, self.mouse_move_event, self.mouse_release_event)
 		# Create VIEW from SCENE
 		self.graphics_view = GraphicsView(self.graphics_scene)
 
