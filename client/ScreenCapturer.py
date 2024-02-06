@@ -1,7 +1,7 @@
 import signal
 import sys
 import time
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Optional
 from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QPixmap, QColor
 import keyboard
+from pydantic import BaseModel
 from HotkeyHandler import Hotkey
 from PySide6.QtCore import QObject, Signal, Slot, SLOT
 
@@ -205,11 +206,6 @@ class NetworkRequestWorker(QRunnable):
 			print("Error has happened")
 
 class ScreenCapturer(QWidget):
-	show_signal = Signal()
-	hide_signal = Signal()
-	delete_signal = Signal()
-	capture_saved_region_signal = Signal(TwoPoints)
-
 	def __init__(self,app:QApplication) -> None:
 		super().__init__()
 
@@ -246,11 +242,6 @@ class ScreenCapturer(QWidget):
 		#############################
 		# ADD THREAD AND SIGNALLER
 		self.thread_pool = QThreadPool()
-
-		self.show_signal.connect(self.show)
-		self.hide_signal.connect(self.hide)
-		self.delete_signal.connect(self.delete)
-		self.capture_saved_region_signal.connect(self.capture_region)
 
 
 	def add_screenshot(self):
@@ -394,18 +385,28 @@ def convert_pixmap_to_bytes(pixmap:QPixmap):
 	pixmap_bytes = buffer_array.data()
 	return pixmap_bytes
 
+class SignalHandler(QObject):
+	signal = Signal(object)
+	def __init__(self, parent: QObject|None = None) -> None:
+		super().__init__(parent)
+		self.signal.connect(self.signal_handler)
+		
+	def signal_handler(self,callback:Callable[...,None]):	# type: ignore
+		callback()
+
 if __name__ == "__main__":
 	app = QApplication([])
 	ocr_capture_app = ScreenCapturer(app)
 
+	signal_handler = SignalHandler()
 
 	thread_pool = QThreadPool()
 	hotkey_runnable = HotkeyRunnable(
 	[
-		Hotkey(modifiers=[91],key=192,callback=ocr_capture_app.show_signal.emit),
-		Hotkey(modifiers=[],key=0x1B,callback=ocr_capture_app.hide_signal.emit),
-		Hotkey(modifiers=[91],key=0x90,callback=ocr_capture_app.delete_signal.emit),
-		Hotkey(modifiers=[91],key=0x5A,callback=lambda:ocr_capture_app.capture_saved_region_signal.emit(TwoPoints(x1=0,y1=0,x2=1920,y2=1080))),
+		Hotkey(modifiers=[91],key=192,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.show())),
+		Hotkey(modifiers=[],key=0x1B,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.hide())),
+		Hotkey(modifiers=[91],key=0x90,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.delete())),
+		Hotkey(modifiers=[91],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=0,y1=0,x2=1920,y2=1080)))),
 	])
 	thread_pool.start(hotkey_runnable)
 
