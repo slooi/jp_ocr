@@ -2,7 +2,7 @@ import signal
 import sys
 import time
 from typing import Any, Callable, List, Optional, Tuple
-from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication, QTimer
+from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication, QTimer, QPropertyAnimation
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
 	QApplication,
@@ -144,12 +144,22 @@ class ToolNotification(QLabel):
 		self.show()
 		self.timer = QTimer()
 		self.timer.setSingleShot(True)  # Set the timer to be a single shot (only fires once)
-		self.timer.timeout.connect(self.hide)  
+		self.timer.timeout.connect(self.startFadeOutAnimation)  
 
-	def update_text(self,string:str):
+	def update_text(self, string: str):
 		self.setText(string)
 		self.show()
-		self.timer.start(3000)  
+		self.timer.start(3000)  # Start the timer to trigger the fade out animation after 3 seconds
+
+	def startFadeOutAnimation(self):
+		# Create a property animation for the opacity property
+		self.animation = QPropertyAnimation(self, b"windowOpacity")
+		# Set the duration of the animation (in milliseconds)
+		self.animation.setDuration(1000)  # 1000 milliseconds = 1 second
+		# Set the end value (opacity = 0)
+		self.animation.setEndValue(0)
+		# Start the animation
+		self.animation.start()
 
 
 class MainWindow(QMainWindow):
