@@ -429,7 +429,7 @@ class ScreenCapturerApp(QWidget):
 		self.close()
 
 		
-	def show(self):
+	def manual_region_capture(self):
 		print("showing!")
 		
 		# 1) Remove any items from render
@@ -531,7 +531,7 @@ if __name__ == "__main__":
 	thread_pool = QThreadPool()
 	def debug_check():
 		print("debug_check ran!")
-		ocr_capture_app.show()
+		ocr_capture_app.manual_region_capture()
 	def region_capture():
 		print("region capture hotkey pressed")
 		signal_handler.signal.emit(lambda:debug_check())
