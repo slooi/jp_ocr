@@ -31,6 +31,9 @@ from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 from abc import ABC, abstractmethod
 import traceback
 import pyperclip # type: ignore
+import json
+
+import ast
 #########################################################################################
 #########################################################################################
 #########################################################################################
@@ -140,17 +143,28 @@ class ToolNotification(QLabel):
 	def __init__(self,string:str):
 		super().__init__(string)
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
-		self.move(0,0)
+		self.setGeometry(1920-140,1080-40,140-10,40-10)
 		self.hide()
-		# self.show()
+		
 		self.timer = QTimer()
 		self.timer.setSingleShot(True)  # Set the timer to be a single shot (only fires once)
-		self.timer.timeout.connect(self.startFadeOutAnimation)  
+		self.timer.timeout.connect(self.startFadeOutAnimation)
+		
+		self.setStyleSheet(
+			"""
+			margin: 4px;
+		"""
+		)
 
-	def update_text(self, string: str):
-		self.setWindowOpacity(0.92)
-		self.setText(string)
+	def update_text(self, text_string: str):
+		self.setWindowOpacity(0.85)
+
+		self.setText(text_string)
+		font = self.font()
+		font.setPointSize(12)
+		self.setFont(font)
 		self.show()
+
 		self.timer.start(2000)  # Start the timer to trigger the fade out animation after 3 seconds
 
 	def startFadeOutAnimation(self):
@@ -167,7 +181,7 @@ class MainWindow(QMainWindow):
 		super().__init__()
 
 		# Set hints
-		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+		# self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
 		# self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
 
@@ -382,8 +396,14 @@ class ScreenCapturerApp(QWidget):
 
 	def mouse_release_event(self):
 		def cb(x):
-			pyperclip.copy(x)
-			self.notification_signal.emit(x)
+			try:
+				pyperclip.copy(x)
+				self.notification_signal.emit("Text Copied")
+			except:
+				try:
+					self.notification_signal.emit("ERROR: "+x["error"])
+				except:
+					raise Exception("ERROR: Did not except this to happen")
 		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.highlightedAreaItemManager.get_cropped_screenshot())
 		print("POSTING")
 		

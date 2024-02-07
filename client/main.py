@@ -61,7 +61,7 @@ class NetworkHandler():
 		# Process response
 		try:
 			data = response.json()
-			print("### Response Data: ###\n{}".format(data))
+			print("\n\t\t### Response Data: ###\n{}".format(data))
 			return data
 		except requests.exceptions.RequestException as e:
 			raise KnownError(e)
