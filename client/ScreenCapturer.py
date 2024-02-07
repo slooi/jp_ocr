@@ -140,25 +140,25 @@ class ToolNotification(QLabel):
 	def __init__(self,string:str):
 		super().__init__(string)
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
-		self.move(1920-100,1080-20)
-		self.show()
+		self.move(0,0)
+		self.hide()
+		# self.show()
 		self.timer = QTimer()
 		self.timer.setSingleShot(True)  # Set the timer to be a single shot (only fires once)
 		self.timer.timeout.connect(self.startFadeOutAnimation)  
 
 	def update_text(self, string: str):
+		self.setWindowOpacity(0.92)
 		self.setText(string)
 		self.show()
-		self.timer.start(3000)  # Start the timer to trigger the fade out animation after 3 seconds
+		self.timer.start(2000)  # Start the timer to trigger the fade out animation after 3 seconds
 
 	def startFadeOutAnimation(self):
 		# Create a property animation for the opacity property
 		self.animation = QPropertyAnimation(self, b"windowOpacity")
-		# Set the duration of the animation (in milliseconds)
-		self.animation.setDuration(1000)  # 1000 milliseconds = 1 second
-		# Set the end value (opacity = 0)
-		self.animation.setEndValue(0)
-		# Start the animation
+		self.animation.setDuration(1000)
+		self.animation.setEndValue(0) # set end opacity = 0
+
 		self.animation.start()
 
 
