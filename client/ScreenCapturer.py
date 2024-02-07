@@ -2,7 +2,7 @@ import signal
 import sys
 import time
 from typing import Any, Callable, List, Optional, Tuple
-from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication
+from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication, QTimer
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
 	QApplication,
@@ -135,6 +135,22 @@ class GraphicsView(QGraphicsView):
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
+class ToolNotification(QLabel):
+	def __init__(self,string:str):
+		super().__init__(string)
+		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+		self.move(1920-100,1080-20)
+		self.show()
+		self.timer = QTimer()
+		self.timer.setSingleShot(True)  # Set the timer to be a single shot (only fires once)
+		self.timer.timeout.connect(self.hide)  
+
+	def update_text(self,string:str):
+		self.setText(string)
+		self.show()
+		self.timer.start(3000)  
+
 
 class MainWindow(QMainWindow):
 	def __init__(self):
@@ -311,6 +327,7 @@ class HighlightedAreaItemManager():
 
 
 class ScreenCapturerApp(QWidget):
+	notification_signal = Signal(str)
 	def __init__(self,app:QApplication) -> None:
 		super().__init__()
 
@@ -341,7 +358,9 @@ class ScreenCapturerApp(QWidget):
 		#############################
 		# ADD THREAD AND SIGNALLER
 		self.thread_pool = QThreadPool()
-		
+		self.notification_signal.connect(self.notification)
+		self.notification_widget = ToolNotification("")
+		self.notification_widget.hide()
 		self.screenCapturer = ScreenCapturerPyside()
 
 	def mouse_press_event(self):
@@ -352,20 +371,24 @@ class ScreenCapturerApp(QWidget):
 		self.highlightedAreaItemManager.update(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
 	def mouse_release_event(self):
+		def cb(x):
+			pyperclip.copy(x)
+			self.notification_signal.emit(x)
 		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.highlightedAreaItemManager.get_cropped_screenshot())
 		print("POSTING")
 		
-		worker = NetworkRequestWorker("http://localhost:54321",captured_region,lambda x:pyperclip.copy(x))
+		worker = NetworkRequestWorker("http://localhost:54321",captured_region,cb)
 		self.thread_pool.start(worker)
 
 		self.hide()
+
+	def notification(self,text:str):
+		self.notification_widget.update_text(text)
 
 	def run(self):
 		self.app.exec()
 
 	def hide(self):
-		self.testing = QWidget(parent=self)
-		self.testing.
 		self.main_window.hide()
 
 	def delete(self):
