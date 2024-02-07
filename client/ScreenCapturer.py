@@ -152,8 +152,10 @@ class ToolNotification(QLabel):
 		
 		self.setStyleSheet(
 			"""
-			border: 2px dashed black;
+			border: 1px solid white;
 			margin: 4px;
+			color: white;
+			background-color: #404040;
 		"""
 		)
 
