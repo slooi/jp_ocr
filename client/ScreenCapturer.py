@@ -143,7 +143,7 @@ class ToolNotification(QLabel):
 	def __init__(self,string:str):
 		super().__init__(string)
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
-		self.setGeometry(1920-170,1080-40,170-10,40-10)
+		self.setGeometry(1920-170,1080-50,170-10,50-10)
 		self.hide()
 
 		self.timer = QTimer()
@@ -152,6 +152,7 @@ class ToolNotification(QLabel):
 		
 		self.setStyleSheet(
 			"""
+			border: 2px dashed black;
 			margin: 4px;
 		"""
 		)
