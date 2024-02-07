@@ -145,7 +145,7 @@ class ToolNotification(QLabel):
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
 		self.setGeometry(1920-140,1080-40,140-10,40-10)
 		self.hide()
-		
+
 		self.timer = QTimer()
 		self.timer.setSingleShot(True)  # Set the timer to be a single shot (only fires once)
 		self.timer.timeout.connect(self.startFadeOutAnimation)
@@ -181,7 +181,7 @@ class MainWindow(QMainWindow):
 		super().__init__()
 
 		# Set hints
-		# self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
 		# self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
 
