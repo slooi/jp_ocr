@@ -461,18 +461,14 @@ class ScreenCapturerApp(QWidget):
 	def capture_region(self,two_points:TwoPoints):
 		print("OBJECT OBJECT",two_points)
 
-		# Get screenshot
-		screen = QApplication.primaryScreen()
-		screenshot = screen.grabWindow(0)
-
 		# Get cropped screenshot
-		cropped_pixmap = screenshot.copy(
-			*self.mouse_handler.two_points_to_rect_shape(two_points.x1,two_points.y1,two_points.x2,two_points.y2)
-		)
+		cropped_screenshot = self.screenCapturer.capture_region(two_points)
 
-		screenshot_bytes = self.screenCapturer.convert_pixmap_to_bytes(cropped_pixmap)
+		# Get cropped screenshot in byte form
+		screenshot_bytes = self.screenCapturer.convert_pixmap_to_bytes(cropped_screenshot)
+
+		# Post cropped screenshot
 		print("POSTING")
-		
 		worker = NetworkRequestWorker("http://localhost:54321",screenshot_bytes)
 		self.thread_pool.start(worker)
 
@@ -490,10 +486,13 @@ class ScreenCapturerPyside(QObject):
 	def __init__(self) -> None:
 		super().__init__()
 
-	def capture_region(self):
+	def capture_region(self,two_points:TwoPoints|None = None):
 		# Get screenshot
 		screen = QApplication.primaryScreen()
-		screenshot = screen.grabWindow(0)
+		if isinstance(two_points,TwoPoints):
+			screenshot = screen.grabWindow(0,*MouseHandler.two_points_to_rect_shape(two_points.x1,two_points.y1,two_points.x2,two_points.y2))
+		else:
+			screenshot = screen.grabWindow(0)
 
 		return screenshot
 	
