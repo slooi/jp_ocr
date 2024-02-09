@@ -470,7 +470,7 @@ class ScreenCapturerApp(QWidget):
 
 		# Post cropped screenshot
 		print("POSTING")
-		worker = NetworkRequestWorker("http://localhost:54321",screenshot_bytes)
+		worker = NetworkRequestWorker("http://localhost:54321",screenshot_bytes,self._image_post_response_callback)
 		self.thread_pool.start(worker)
 
 #########################################################################################
