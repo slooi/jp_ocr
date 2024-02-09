@@ -542,7 +542,7 @@ if __name__ == "__main__":
 	thread_pool.start(HotkeyRunnable(
 	[
 		Hotkey(modifiers=[91],key=192,callback=lambda:region_capture()),
-		Hotkey(modifiers=[],key=0x1B,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.hide())),
+		# Hotkey(modifiers=[],key=0x1B,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.hide())),
 		Hotkey(modifiers=[91],key=0x90,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.delete())),
 		Hotkey(modifiers=[91],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=0,y1=0,x2=1920,y2=1080)))),
 	]))
@@ -553,6 +553,6 @@ if __name__ == "__main__":
 
 """
 https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes 
-asd`
+asd`	
 ``
  """
