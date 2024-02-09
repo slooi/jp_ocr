@@ -398,20 +398,21 @@ class ScreenCapturerApp(QWidget):
 		if not self.highlightedAreaItemManager: raise Exception("ERROR: self.highlightedAreaItemManager DOES NOT EXIST!")
 		self.highlightedAreaItemManager.update(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
 
-	def mouse_release_event(self):
-		def cb(x):
+	def _image_post_response_callback(self,x):
+		try:
+			pyperclip.copy(x)
+			self.notification_signal.emit("Text Copied")
+		except:
 			try:
-				pyperclip.copy(x)
-				self.notification_signal.emit("Text Copied")
+				self.notification_signal.emit("ERROR: "+x["error"])
 			except:
-				try:
-					self.notification_signal.emit("ERROR: "+x["error"])
-				except:
-					raise Exception("ERROR: Did not except this to happen")
+				raise Exception("ERROR: Did not except this to happen")
+			
+	def mouse_release_event(self):
 		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.highlightedAreaItemManager.get_cropped_screenshot())
 		print("POSTING")
 		
-		worker = NetworkRequestWorker("http://localhost:54321",captured_region,cb)
+		worker = NetworkRequestWorker("http://localhost:54321",captured_region,self._image_post_response_callback)
 		self.thread_pool.start(worker)
 
 		self.hide()
