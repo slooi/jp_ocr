@@ -24,6 +24,7 @@ html {
 #content {
 	background-color: var(--bg-color);
 	padding: 0.5rem;
+	white-space: pre-wrap;
 }
 footer {
 	height: 50vh;
