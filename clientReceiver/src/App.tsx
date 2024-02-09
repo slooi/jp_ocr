@@ -14,6 +14,8 @@ function App() {
 
 	useEffect(() => {
 		console.log("Notified! :D", textArray);
+		const htmlElement = document.querySelectorAll("html")[0]
+		htmlElement.scrollTop = htmlElement.scrollHeight - htmlElement.clientHeight
 	}, [textArray]);
 
 	return (
