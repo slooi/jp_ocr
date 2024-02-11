@@ -1,8 +1,8 @@
 import signal
 import sys
 import time
-from typing import Any, Callable, List, Optional, Tuple
-from PySide6.QtCore import Qt, QRectF, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication, QTimer, QPropertyAnimation
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TypedDict, Union
+from PySide6.QtCore import Qt, QRectF, QEvent, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication, QTimer, QPropertyAnimation
 from PySide6.QtGui import QPixmap, QPen
 from PySide6.QtWidgets import (
 	QApplication,
@@ -188,6 +188,13 @@ class MainWindow(QMainWindow):
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
 		# self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
+class MouseHandlerButtons(TypedDict):
+	x_press: float
+	y_press: float
+	x_move: float
+	y_move: float
+	x_release: float
+	y_release: float
 
 class MouseHandler:
 	def __init__(self, graphics_scene: GraphicsScene,
@@ -198,14 +205,22 @@ class MouseHandler:
 			self.mouse_press_event, self.mouse_move_event, self.mouse_release_event
 		)
 
-		self.x_press = 0.0
-		self.y_press = 0.0
-		self.x_move = 0.0
-		self.y_move = 0.0
-		self.x_release = 0.0
-		self.y_release = 0.0
+		self.buttons: Dict[Qt.MouseButton, MouseHandlerButtons] = {}
+		self.down_buttons: Dict[Qt.MouseButton, bool] = {Qt.MouseButton.LeftButton: False, Qt.MouseButton.MiddleButton: False, Qt.MouseButton.RightButton: False, Qt.MouseButton.NoButton: False}
+		self.intialize_mouse_buttons(Qt.MouseButton.LeftButton,Qt.MouseButton.RightButton,Qt.MouseButton.MiddleButton,Qt.MouseButton.NoButton)
 
 		self.add_mouse_callbacks(mousePressEventCallback,mouseMoveEventCallback,mouseReleaseEventCallback)
+
+	def intialize_mouse_buttons(self,*button_types):
+		for button_type in button_types:
+			self.buttons[button_type] = {
+				"x_press": 0.0,
+				"y_press": 0.0,
+				"x_move": 0.0,
+				"y_move": 0.0,
+				"x_release": 0.0,
+				"y_release": 0.0
+			}
 
 	# SUBSCRIPTION
 	def add_mouse_callbacks(
@@ -220,27 +235,42 @@ class MouseHandler:
 
 	# LISTENERS
 	def mouse_press_event(self, event: QGraphicsSceneMouseEvent):
-		self.x_press = event.scenePos().x()
-		self.y_press = event.scenePos().y()
+		self.down_buttons[event.button()] = True
+		button = event.button()
+		self.buttons[button]["x_press"] = event.scenePos().x()
+		self.buttons[button]["y_press"] = event.scenePos().y()
 
-		self.x_move = event.scenePos().x()  # Slight hack.......
-		self.y_move = event.scenePos().y()  # Slight hack.......
+		self.buttons[button]["x_move"] = event.scenePos().x()  # Slight hack.......
+		self.buttons[button]["y_move"] = event.scenePos().y()  # Slight hack.......
+		print("\n\n\t\t b",event.button())
 		self.mousePressEventCallback()
 
 	def mouse_move_event(self, event: QGraphicsSceneMouseEvent):
-		self.x_move = event.scenePos().x()
-		self.y_move = event.scenePos().y()
+		button = event.button()
+		print(button)
+		for down_button in self.down_buttons:	
+			self.buttons[down_button]["x_move"] = event.scenePos().x()
+			self.buttons[down_button]["y_move"] = event.scenePos().y()
 		self.mouseMoveEventCallback()
 
 	def mouse_release_event(self, event: QGraphicsSceneMouseEvent):
-		self.x_release = event.scenePos().x()
-		self.y_release = event.scenePos().y()
+		self.down_buttons[event.button()] = False
+		button = event.button()
+		self.buttons[button]["x_release"] = event.scenePos().x()
+		self.buttons[button]["y_release"] = event.scenePos().y()
 		self.mouseReleaseEventCallback()
+
+	def get_press(self,mouse_button:Qt.MouseButton=Qt.MouseButton.LeftButton) -> Tuple[float,float]:
+		return (self.buttons[mouse_button]["x_press"],self.buttons[mouse_button]["y_press"])
+		
+	def get_move(self,mouse_button:Qt.MouseButton=Qt.MouseButton.LeftButton) -> Tuple[float,float]:
+		return (self.buttons[mouse_button]["x_move"],self.buttons[mouse_button]["y_move"])
 
 	# PRIVATE METHODS
 	def get_mouse_positions_in_rect_shape(self):
-		return self.two_points_to_rect_shape(self.x_press,self.y_press,self.x_move,self.y_move)
-	
+		left_button = self.buttons[Qt.MouseButton.LeftButton]
+		return self.two_points_to_rect_shape(left_button["x_press"],left_button["x_press"],left_button["x_move"],left_button["y_move"])
+
 	@staticmethod
 	def two_points_to_rect_shape(x1:float,y1:float,x2:float,y2:float) -> Tuple[int,int,int,int]:
 		left, top, width, height = 0.0, 0.0, 0.0, 0.0
@@ -396,7 +426,8 @@ class ScreenCapturerApp(QWidget):
 
 	def mouse_move_event(self):
 		if not self.highlightedAreaItemManager: raise Exception("ERROR: self.highlightedAreaItemManager DOES NOT EXIST!")
-		self.highlightedAreaItemManager.update(self.mouse_handler.x_press,self.mouse_handler.y_press,self.mouse_handler.x_move,self.mouse_handler.y_move)
+		# print(self.mouse_handler.buttons)
+		self.highlightedAreaItemManager.update(*self.mouse_handler.get_press(),*self.mouse_handler.get_move())
 
 	def _image_post_response_callback(self,x):
 		try:
@@ -416,6 +447,9 @@ class ScreenCapturerApp(QWidget):
 		self.thread_pool.start(worker)
 
 		self.hide()
+		
+		
+		# if not self.isHidden():
 
 	def notification(self,text:str):
 		self.notification_widget.update_text(text)
