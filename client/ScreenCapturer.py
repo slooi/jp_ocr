@@ -264,11 +264,6 @@ class MouseHandler:
 	def get_mouse_positions_in_rect_shape(self):
 		left_button = self.buttons[Qt.MouseButton.LeftButton]
 		return self.two_points_to_rect_shape(left_button["x_press"],left_button["x_press"],left_button["x_move"],left_button["y_move"])
-	
-	@staticmethod
-	def _convert_event_buttons_into_button_list(event: QGraphicsSceneMouseEvent):
-		int_representation = int(str(event.buttons().value))
-		button_press_list = str(bin(int_representation))[2:]
 
 	@staticmethod
 	def two_points_to_rect_shape(x1:float,y1:float,x2:float,y2:float) -> Tuple[int,int,int,int]:
