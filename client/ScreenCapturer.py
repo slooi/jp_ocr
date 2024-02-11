@@ -240,19 +240,19 @@ class MouseHandler:
 
 			self.buttons[button]["x_move"] = event.scenePos().x()  # Slight hack.......
 			self.buttons[button]["y_move"] = event.scenePos().y()  # Slight hack.......
-			self.mousePressEventCallback()
+		self.mousePressEventCallback()
 
 	def mouse_move_event(self, event: QGraphicsSceneMouseEvent):
 		for button in event.buttons():
 			self.buttons[button]["x_move"] = event.scenePos().x()
 			self.buttons[button]["y_move"] = event.scenePos().y()
-			self.mouseMoveEventCallback()
+		self.mouseMoveEventCallback()
 
 	def mouse_release_event(self, event: QGraphicsSceneMouseEvent):
 		for button in event.buttons():
 			self.buttons[button]["x_release"] = event.scenePos().x()
 			self.buttons[button]["y_release"] = event.scenePos().y()
-			self.mouseReleaseEventCallback()
+		self.mouseReleaseEventCallback()
 
 	def get_press(self,mouse_button:Qt.MouseButton=Qt.MouseButton.LeftButton) -> Tuple[float,float]:
 		return (self.buttons[mouse_button]["x_press"],self.buttons[mouse_button]["y_press"])
