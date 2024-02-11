@@ -234,25 +234,25 @@ class MouseHandler:
 
 	# LISTENERS
 	def mouse_press_event(self, event: QGraphicsSceneMouseEvent):
-		print("press",event.buttons(),event.buttons().value,type(event.buttons().value),type(event.buttons()),dir(event.buttons()))
-		self.buttons[event.buttons()]["x_press"] = event.scenePos().x()
-		self.buttons[event.buttons()]["y_press"] = event.scenePos().y()
+		for button in event.buttons():
+			self.buttons[button]["x_press"] = event.scenePos().x()
+			self.buttons[button]["y_press"] = event.scenePos().y()
 
-		self.buttons[event.buttons()]["x_move"] = event.scenePos().x()  # Slight hack.......
-		self.buttons[event.buttons()]["y_move"] = event.scenePos().y()  # Slight hack.......
-		self.mousePressEventCallback()
+			self.buttons[button]["x_move"] = event.scenePos().x()  # Slight hack.......
+			self.buttons[button]["y_move"] = event.scenePos().y()  # Slight hack.......
+			self.mousePressEventCallback()
 
 	def mouse_move_event(self, event: QGraphicsSceneMouseEvent):
-		print("move",event.buttons(),event.buttons().value,type(event.buttons().value),type(event.buttons()),dir(event.buttons()))
-		self.buttons[event.buttons()]["x_move"] = event.scenePos().x()
-		self.buttons[event.buttons()]["y_move"] = event.scenePos().y()
-		self.mouseMoveEventCallback()
+		for button in event.buttons():
+			self.buttons[button]["x_move"] = event.scenePos().x()
+			self.buttons[button]["y_move"] = event.scenePos().y()
+			self.mouseMoveEventCallback()
 
 	def mouse_release_event(self, event: QGraphicsSceneMouseEvent):
-		print("release",event.buttons(),event.buttons().value,type(event.buttons().value),type(event.buttons()),dir(event.buttons()))
-		self.buttons[event.buttons()]["x_release"] = event.scenePos().x()
-		self.buttons[event.buttons()]["y_release"] = event.scenePos().y()
-		self.mouseReleaseEventCallback()
+		for button in event.buttons():
+			self.buttons[button]["x_release"] = event.scenePos().x()
+			self.buttons[button]["y_release"] = event.scenePos().y()
+			self.mouseReleaseEventCallback()
 
 	def get_press(self,mouse_button:Qt.MouseButton=Qt.MouseButton.LeftButton) -> Tuple[float,float]:
 		return (self.buttons[mouse_button]["x_press"],self.buttons[mouse_button]["y_press"])
@@ -265,6 +265,11 @@ class MouseHandler:
 		left_button = self.buttons[Qt.MouseButton.LeftButton]
 		return self.two_points_to_rect_shape(left_button["x_press"],left_button["x_press"],left_button["x_move"],left_button["y_move"])
 	
+	@staticmethod
+	def _convert_event_buttons_into_button_list(event: QGraphicsSceneMouseEvent):
+		int_representation = int(str(event.buttons().value))
+		button_press_list = str(bin(int_representation))[2:]
+
 	@staticmethod
 	def two_points_to_rect_shape(x1:float,y1:float,x2:float,y2:float) -> Tuple[int,int,int,int]:
 		left, top, width, height = 0.0, 0.0, 0.0, 0.0
