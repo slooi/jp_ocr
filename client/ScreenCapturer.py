@@ -25,7 +25,7 @@ from pydantic import BaseModel
 from HotkeyHandler import Hotkey
 from PySide6.QtCore import QObject, Signal, Slot, SLOT
 
-from main import KnownError, TwoPoints, NetworkHandler
+from utils import KnownError, TwoPoints, NetworkHandler
 
 from HotkeyHandler import Hotkey, WindowsHotkeyHandler
 from abc import ABC, abstractmethod
