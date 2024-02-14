@@ -242,12 +242,10 @@ class MouseHandler:
 
 		self.buttons[button]["x_move"] = event.scenePos().x()  # Slight hack.......
 		self.buttons[button]["y_move"] = event.scenePos().y()  # Slight hack.......
-		print("\n\n\t\t b",event.button())
 		self.mousePressEventCallback()
 
 	def mouse_move_event(self, event: QGraphicsSceneMouseEvent):
 		button = event.button()
-		print(button)
 		for down_button in self.down_buttons:	
 			self.buttons[down_button]["x_move"] = event.scenePos().x()
 			self.buttons[down_button]["y_move"] = event.scenePos().y()
@@ -426,7 +424,6 @@ class ScreenCapturerApp(QWidget):
 
 	def mouse_move_event(self):
 		if not self.highlightedAreaItemManager: raise Exception("ERROR: self.highlightedAreaItemManager DOES NOT EXIST!")
-		# print(self.mouse_handler.buttons)
 		self.highlightedAreaItemManager.update(*self.mouse_handler.get_press(),*self.mouse_handler.get_move())
 
 	def _image_post_response_callback(self,x):
@@ -441,7 +438,6 @@ class ScreenCapturerApp(QWidget):
 			
 	def mouse_release_event(self):
 		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.highlightedAreaItemManager.get_cropped_screenshot())
-		print("POSTING")
 		
 		worker = NetworkRequestWorker("http://localhost:54321",captured_region,self._image_post_response_callback)
 		self.thread_pool.start(worker)
