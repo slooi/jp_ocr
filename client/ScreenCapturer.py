@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
 	QLabel,
 	QMainWindow,
 	QGraphicsItem,
-	QApplication,
 	QGraphicsScene,
 	QGraphicsView,
 	QGraphicsRectItem,
