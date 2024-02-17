@@ -13,7 +13,6 @@ body,
 	--bg-color: rgb(219, 219, 219);
 	--bg-color2: rgb(182, 182, 182);
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-	line-height: 1.5;
 	font-weight: 400;
 	color: black;
 }
@@ -25,16 +24,22 @@ html {
 	background-color: var(--bg-color);
 	white-space: pre-wrap;
 }
-#content > p {
-	padding: 0.5rem;
-	margin-top: 1rem;
-	margin-bottom: 1rem;
-	line-height: 1.1rem;
-}
 p:last-child {
 	background-color: rgb(233, 233, 233);
 }
 footer {
 	height: 50vh;
 	background-color: var(--bg-color2);
+}
+
+
+p {
+	padding: 0rem 0;
+	line-height: 1.1rem;
+
+	border-top:1px dashed black;
+	border-bottom:1px dashed black;
+}
+.icon-wrapper:hover{
+	cursor:pointer;
 }
