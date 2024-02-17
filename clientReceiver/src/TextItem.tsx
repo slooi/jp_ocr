@@ -15,7 +15,7 @@ export function TextItem({text}:{text:string}){
 
 		setTimeout(()=>{
 			setTextWasCopied(false)
-		},1000)
+		},2000)
 	}
 
 	return (
