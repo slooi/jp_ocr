@@ -438,7 +438,7 @@ class ScreenCapturerApp(QWidget):
 	def mouse_release_event(self):
 		captured_region = self.screenCapturer.convert_pixmap_to_bytes(self.highlightedAreaItemManager.get_cropped_screenshot())
 		
-		worker = NetworkRequestWorker("http://localhost:54321",captured_region,self._image_post_response_callback)
+		worker = NetworkRequestWorker("https://localhost:54321",captured_region,self._image_post_response_callback)
 		self.thread_pool.start(worker)
 
 		self.hide()
@@ -499,7 +499,7 @@ class ScreenCapturerApp(QWidget):
 
 		# Post cropped screenshot
 		print("POSTING")
-		worker = NetworkRequestWorker("http://localhost:54321",screenshot_bytes,self._image_post_response_callback)
+		worker = NetworkRequestWorker("https://localhost:54321",screenshot_bytes,self._image_post_response_callback)
 		self.thread_pool.start(worker)
 
 #########################################################################################

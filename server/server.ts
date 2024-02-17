@@ -6,7 +6,8 @@ import multer from "multer"
 import { asyncNextCaller } from "./errorUtils"
 import ws from "ws"
 
-
+import https from "https"
+import fs from "fs"
 
 // ############################################################################
 // 								CONSTANTS
@@ -16,6 +17,11 @@ const PORT = 54321
 
 const upload = multer()
 const app = express()
+
+const options = {
+	key: fs.readFileSync(path.join("..",".keys","server.key")),
+	cert: fs.readFileSync(path.join("..",".keys","server.crt"))
+}
 
 // ############################################################################
 // 								HTTP MIDDLEWARE
@@ -53,7 +59,7 @@ app.post("/", upload.single('image2'), asyncNextCaller(async (req, res) => {
 	wsList.forEach(ws => ws.send(ocrText))
 	res.status(200).json(ocrText)
 }))
-const server = app.listen(PORT, () => { console.log("Listening on port " + PORT) })
+const server = https.createServer(options,app).listen(PORT, () => { console.log("Listening on port " + PORT) })
 
 
 // ############################################################################

@@ -54,6 +54,7 @@ class NetworkHandler():
 				url,
 				files={"image2": ("toOCR.jpg", io.BytesIO(im_bytes), "image/jpeg")},
 				timeout=5,
+				verify=False
 			)
 		except Exception as e:
 			raise KnownError(e)
