@@ -38,7 +38,7 @@ footer {
 	background-color: var(--bg-color2);
 }
 html{
-	overflow:hidden;
+	overflow-x:hidden;
 }
 
 p {
