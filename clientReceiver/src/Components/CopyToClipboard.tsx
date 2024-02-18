@@ -6,7 +6,8 @@ export function CopyToClipboard({getText}:{getText:()=>string}){
 	const [textWasCopied,setTextWasCopied] = useState(false)
 	const clickHandler = () => {
 		// Write text to clipboard
-		navigator.clipboard.writeText(getText());
+		// navigator.clipboard.writeText(getText());
+		copy(getText())
 
 		// Set textWasCopied to true
 		setTextWasCopied(true)
@@ -14,6 +15,18 @@ export function CopyToClipboard({getText}:{getText:()=>string}){
 		setTimeout(()=>{
 			setTextWasCopied(false)
 		},10000)
+	}
+
+	const copy = (text:string) => {
+		document.oncopy = function(event){
+			if (event && event.clipboardData){
+				event.clipboardData.setData("text/plain",text)
+				event.preventDefault()
+			}else{
+				throw new Error("event is NULL")
+			}
+		}
+		document.execCommand("copy",false)
 	}
 	
 	return (
