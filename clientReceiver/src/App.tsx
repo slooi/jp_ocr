@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RxClipboardCopy } from "react-icons/rx";
-import { TextItem } from './TextItem';
+import { TextItem } from './Components/TextItem';
 import { HiCheck } from 'react-icons/hi2';
 import { NONAME } from 'dns';
 import { Toolbar } from './Components/Toolbar';
