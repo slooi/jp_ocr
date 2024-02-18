@@ -10,8 +10,10 @@ export function TextItem({text}:{text:string}){
 
 	return (
 		<>
-			<CopyToClipboard getText={getText}/>
-			<span style={{margin:"0.25rem 0.5rem"}}>{text}</span>
+			<p style={{display:"flex",alignItems:"end"}}>
+				<CopyToClipboard getText={getText} name={"icon-wrapper"}/>
+				<span style={{margin:"0.25rem 0.5rem"}} className="text">{text}</span>
+			</p>
 		</>
 	)
 }

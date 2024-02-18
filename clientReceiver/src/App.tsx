@@ -23,15 +23,10 @@ function App() {
 		htmlElement.scrollTop = htmlElement.scrollHeight - htmlElement.clientHeight
 	}, [textArray]);
 
-
 	return (
 		<>
 			<div id="content">
-				{textArray.map(text => (
-				<p style={{display:"flex",alignItems:"end"}}>
-					<TextItem text={text}/>
-				</p>
-				))}
+				{textArray.map((text, index)=> <TextItem key={index} text={text}/>)}
 			</div>
 			<Toolbar/>
 			<footer></footer>

@@ -92,7 +92,7 @@ export function Toolbar(){
 			{
 				toolbarState.show &&(
 					<div style={{ position: 'absolute', top: toolbarState.y, left: toolbarState.x, backgroundColor:"rgb(230,230,230)", padding:"0.1rem", boxShadow:"0 2px 4px rgba(0, 0, 0, 0.7)",border:"1px solid black",userSelect:"none"}} ref={toolbarRef}>
-						<CopyToClipboard getText={getText}/>
+						<CopyToClipboard getText={getText} name={"icon-wrapper-selector"}/>
 					</div>
 				)
 			}

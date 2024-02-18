@@ -2,14 +2,23 @@ import { useState } from "react";
 import { HiCheck } from "react-icons/hi2";
 import { RxClipboardCopy } from "react-icons/rx";
 
-export function CopyToClipboard({getText}:{getText:()=>string}){
+export function CopyToClipboard({getText,name}:{getText:()=>string,name:string}){
 	const [textWasCopied,setTextWasCopied] = useState(false)
 	const clickHandler = () => {
-		// Write text to clipboard
-		// navigator.clipboard.writeText(getText());
-		copy(getText())
 
 		// Set textWasCopied to true
+		// try{
+		// 	navigator.clipboard.writeText(getText());
+		// }catch(err){
+		// 	console.log("waiwaiwai")
+		// 	throw new Error("waiwaiwai MY CUSTOM ERROR WHEN COPYING FAILS!")
+		// }
+		// try{
+		// 	copy(getText())
+		// }catch(err){
+		// 	console.log("asdajsd")
+		// 	throw new Error("MY CUSTOM ERROR WHEN COPYING FAILS!")
+		// }
 		setTextWasCopied(true)
 
 		setTimeout(()=>{
@@ -30,7 +39,7 @@ export function CopyToClipboard({getText}:{getText:()=>string}){
 	}
 	
 	return (
-		<span style={{position:"relative",top:"0.1rem",padding:"0.25rem"}} className='icon-wrapper' onClick={clickHandler}>
+		<span style={{position:"relative",top:"0.1rem",padding:"0.25rem"}} className={name} onClick={clickHandler}>
 			{
 				textWasCopied ? <HiCheck/> : <RxClipboardCopy/>
 			}
