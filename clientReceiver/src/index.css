@@ -37,7 +37,9 @@ footer {
 	height: 50vh;
 	background-color: var(--bg-color2);
 }
-
+html{
+	overflow:hidden;
+}
 
 p {
 	padding: 0rem 0;
