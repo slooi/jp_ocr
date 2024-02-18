@@ -29,11 +29,19 @@ if __name__ == "__main__":
 		# BP
 		# Hotkey(modifiers=[91],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=960-450,y1=730,x2=960+450,y2=940)))),
 	
-		# Granblue
+		# Granblue dialogue box
 		# mouse_x,mouse_y: 1480 1040
 		# mouse_x,mouse_y: 480 810
 		Hotkey(modifiers=[91],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=480,y1=810,x2=1480,y2=1040)))),
 
+		# Granblue middle text
+		# mouse_x,mouse_y:  187
+		# mouse_x,mouse_y: 1462 884
+		Hotkey(
+			modifiers=[91],
+			key=0x59,
+			callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=447,y1=187,x2=1462,y2=884)))
+		),
 	]))
 
 	print("Setup done!")
