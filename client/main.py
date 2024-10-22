@@ -1,11 +1,9 @@
 
 from HotkeyHandler import Hotkey
-from ScreenCapturer import HotkeyRunnable, ScreenCapturerApp, SignalHandler
-from utils import TwoPoints
-
 from PySide6.QtCore import QThreadPool
 from PySide6.QtWidgets import QApplication
-
+from ScreenCapturer import HotkeyRunnable, ScreenCapturerApp, SignalHandler
+from utils import TwoPoints
 
 if __name__ == "__main__":
 	app = QApplication([])	# Refactor this later into a class
@@ -20,28 +18,30 @@ if __name__ == "__main__":
 	def region_capture():
 		print("region capture hotkey pressed")
 		signal_handler.signal.emit(lambda:debug_check())
+		
+	LEFT_ALT_KEY = 0xA4
+	LEFT_CONTROL_KEY = 0xA2
+	LEFT_SHIFT_KEY = 0xA0
+	LEFT_WIN_KEY = 91
+	A_KEY = 0x41
+	Z_KEY = 0x5A
 	thread_pool.start(HotkeyRunnable(
 	[
-		Hotkey(modifiers=[91],key=192,callback=lambda:region_capture()),
+		Hotkey(modifiers=[LEFT_WIN_KEY],key=192,callback=lambda:region_capture()),
 		# Hotkey(modifiers=[],key=0x1B,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.hide())),
-		Hotkey(modifiers=[91],key=0x90,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.delete())),
+		Hotkey(modifiers=[LEFT_WIN_KEY],key=0x90,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.delete())),
 		
 		# BP
-		# Hotkey(modifiers=[91],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=960-450,y1=730,x2=960+450,y2=940)))),
+		# Hotkey(modifiers=[LEFT_WIN_KEY],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=960-450,y1=730,x2=960+450,y2=940)))),
 	
-		# Granblue dialogue box
-		# mouse_x,mouse_y: 1480 1040
-		# mouse_x,mouse_y: 480 810
-		Hotkey(modifiers=[91],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=480,y1=810,x2=1480,y2=1040)))),
 
-		# Granblue middle text
-		# mouse_x,mouse_y:  187
-		# mouse_x,mouse_y: 1462 884
-		Hotkey(
-			modifiers=[91],
-			key=0x59,
-			callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=447,y1=187,x2=1462,y2=884)))
-		),
+	
+		# GRANBLUE FANTASY - DIALOGUE
+		Hotkey(modifiers=[LEFT_WIN_KEY],key=Z_KEY,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=960-450,y1=875,x2=960+450,y2=1040)))),
+		# GRANBLUE FANTASY - POPUP HEADER
+		Hotkey(modifiers=[LEFT_ALT_KEY,LEFT_CONTROL_KEY],key=A_KEY,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=460,y1=195,x2=1461,y2=280)))),
+		# GRANBLUE FANTASY - POPUP CONTENT
+		Hotkey(modifiers=[LEFT_ALT_KEY,LEFT_CONTROL_KEY],key=Z_KEY,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=459,y1=606,x2=1460,y2=788)))),
 	]))
 
 	print("Setup done!")
