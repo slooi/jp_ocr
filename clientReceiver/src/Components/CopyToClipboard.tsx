@@ -4,21 +4,22 @@ import { RxClipboardCopy } from "react-icons/rx";
 
 export function CopyToClipboard({getText,name}:{getText:()=>string,name:string}){
 	const [textWasCopied,setTextWasCopied] = useState(false)
-	const clickHandler = () => {
+	const clickHandler = async () => {
 
 		// Set textWasCopied to true
-		// try{
-		// 	navigator.clipboard.writeText(getText());
-		// }catch(err){
-		// 	console.log("waiwaiwai")
-		// 	throw new Error("waiwaiwai MY CUSTOM ERROR WHEN COPYING FAILS!")
-		// }
-		// try{
-		// 	copy(getText())
-		// }catch(err){
-		// 	console.log("asdajsd")
-		// 	throw new Error("MY CUSTOM ERROR WHEN COPYING FAILS!")
-		// }
+		try{
+			await navigator.clipboard.writeText(getText());
+		}catch(err){
+			console.log("waiwaiwai")
+			// throw new Error("waiwaiwai MY CUSTOM ERROR WHEN COPYING FAILS!")
+			console.error("waiwaiwai MY CUSTOM ERROR WHEN COPYING FAILS!")			// should probably find a way to do better error handling
+			try{
+				copy(getText())
+			}catch(err){
+				console.log("asdajsd")
+				console.error("MY CUSTOM ERROR WHEN COPYING FAILS!")			// should probably find a way to do better error handling
+			}
+		}
 		setTextWasCopied(true)
 
 		setTimeout(()=>{
