@@ -1,6 +1,8 @@
-from typing import Any, Dict, List, TypedDict, Union, Callable
+from typing import Any, Callable, Dict, List, TypedDict, Union
+
 from pydantic import BaseModel
 from pynput import keyboard
+
 """
 ############### NORMAL KEY EVENT ### eg: q
 key: q
@@ -152,6 +154,10 @@ https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 ``
 """
 if __name__ == "__main__":
-	WindowsHotkeyHandler([Hotkey(modifiers=[91],key=192,callback=lambda:print("hi"))])
+	LEFT_ALT = 0xA4
+	LEFT_CONTROL = 0xA2
+	LEFT_SHIFT = 0xA0
+	# WindowsHotkeyHandler([Hotkey(modifiers=[91],key=192,callback=lambda:print("hi"))])
+	WindowsHotkeyHandler([Hotkey(modifiers=[LEFT_SHIFT,LEFT_CONTROL],key=192,callback=lambda:print("hi"))])
 
 
