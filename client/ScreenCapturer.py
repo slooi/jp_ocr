@@ -1,38 +1,51 @@
+import ast
+import json
 import signal
 import sys
 import time
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TypedDict, Union
-from PySide6.QtCore import Qt, QRectF, QEvent, Signal, QObject, QThread, QByteArray, QIODevice, QBuffer, QRunnable, QThreadPool, QCoreApplication, QTimer, QPropertyAnimation
-from PySide6.QtGui import QPixmap, QPen
-from PySide6.QtWidgets import (
-	QApplication,
-	QGraphicsSceneMouseEvent,
-	QLabel,
-	QMainWindow,
-	QGraphicsItem,
-	QGraphicsScene,
-	QGraphicsView,
-	QGraphicsRectItem,
-	QGraphicsPixmapItem,
-	QVBoxLayout,
-	QWidget,
-	QGraphicsColorizeEffect,
-)
-from PySide6.QtGui import QPixmap, QColor
-import keyboard
-from pydantic import BaseModel
-from HotkeyHandler import Hotkey
-from PySide6.QtCore import QObject, Signal, Slot, SLOT
-
-from utils import KnownError, TwoPoints, NetworkHandler
-
-from HotkeyHandler import Hotkey, WindowsHotkeyHandler
-from abc import ABC, abstractmethod
 import traceback
-import pyperclip # type: ignore
-import json
+from abc import ABC, abstractmethod
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TypedDict, Union
 
-import ast
+import keyboard
+import pyperclip  # type: ignore
+from HotkeyHandler import Hotkey, WindowsHotkeyHandler
+from pydantic import BaseModel
+from PySide6.QtCore import (
+    SLOT,
+    QBuffer,
+    QByteArray,
+    QCoreApplication,
+    QEvent,
+    QIODevice,
+    QObject,
+    QPropertyAnimation,
+    QRectF,
+    QRunnable,
+    Qt,
+    QThread,
+    QThreadPool,
+    QTimer,
+    Signal,
+    Slot,
+)
+from PySide6.QtGui import QColor, QPen, QPixmap
+from PySide6.QtWidgets import (
+    QApplication,
+    QGraphicsColorizeEffect,
+    QGraphicsItem,
+    QGraphicsPixmapItem,
+    QGraphicsRectItem,
+    QGraphicsScene,
+    QGraphicsSceneMouseEvent,
+    QGraphicsView,
+    QLabel,
+    QMainWindow,
+    QVBoxLayout,
+    QWidget,
+)
+from utils import KnownError, NetworkHandler, TwoPoints
+
 #########################################################################################
 #########################################################################################
 #########################################################################################
@@ -568,12 +581,27 @@ if __name__ == "__main__":
 	def region_capture():
 		print("region capture hotkey pressed")
 		signal_handler.signal.emit(lambda:debug_check())
+
+	LEFT_ALT_KEY = 0xA4
+	LEFT_CONTROL_KEY = 0xA2
+	LEFT_SHIFT = 0xA0
+	A_KEY = 0x41
+	Z_KEY = 0x5A
 	thread_pool.start(HotkeyRunnable(
 	[
 		Hotkey(modifiers=[91],key=192,callback=lambda:region_capture()),
 		# Hotkey(modifiers=[],key=0x1B,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.hide())),
 		Hotkey(modifiers=[91],key=0x90,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.delete())),
-		Hotkey(modifiers=[91],key=0x5A,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=960-450,y1=730,x2=960+450,y2=940)))),
+		# Hotkey(modifiers=[91],key=Z_KEY,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=960-450,y1=730,x2=960+450,y2=940)))),
+		
+
+		
+		# GRANBLUE FANTASY - DIALOGUE
+		Hotkey(modifiers=[91],key=Z_KEY,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=960-450,y1=875,x2=960+450,y2=1040)))),
+		# GRANBLUE FANTASY - POPUP HEADER
+		Hotkey(modifiers=[LEFT_ALT_KEY,LEFT_CONTROL_KEY],key=A_KEY,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=460,y1=195,x2=1461,y2=280)))),
+		# GRANBLUE FANTASY - POPUP CONTENT
+		Hotkey(modifiers=[LEFT_ALT_KEY,LEFT_CONTROL_KEY],key=Z_KEY,callback=lambda:signal_handler.signal.emit(lambda:ocr_capture_app.capture_region(TwoPoints(x1=459,y1=606,x2=1460,y2=788)))),
 	]))
 
 	print("Setup done!")
